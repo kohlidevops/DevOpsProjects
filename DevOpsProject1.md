@@ -141,6 +141,22 @@ ansible all -i hosts -m ping
 
 <img width="947" alt="image" src="https://github.com/user-attachments/assets/33b213bf-d07b-4785-a677-75a9e73ba5a5" />
 
+**To install jenkins on jenkins-master machine using ansible playbook**
+
+Refer - https://pkg.origin.jenkins.io/debian-stable/
+
+https://github.com/kohlidevops/devops-workshop/blob/main/Ansible/jenkins-master-setup.yaml
+
+To run the jenkins-master-setup file
+
+```
+ansible-playbook -i /opt/hosts jenkins-master-setup.yaml --check
+ansible-playbook -i /opt/hosts jenkins-master-setup.yaml
+```
+
+
+
+
 
 
 
