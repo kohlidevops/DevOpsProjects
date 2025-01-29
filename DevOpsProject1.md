@@ -91,6 +91,66 @@ Now exisiting instance will be deleted then create a new 3 Ec2 instances
 
 <img width="797" alt="image" src="https://github.com/user-attachments/assets/6bdd8b3e-631e-4645-95cd-0a9d4f212352" />
 
+## To Setup Ansible and install jenkins and maven
+
+**1. Install Ansible on ubuntu machine**
+
+Refer - https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
+
+```
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+ansible --version
+```
+
+**2. To setup connectivity between ansible and other two machines**
+
+For this, we need to upload the private key pair of jenkins and slave machines to ansible machine. Then create ansible host file
+
+```
+cd /opt/
+//keypair should be available here
+//create a ansible hosts file
+nano hosts
+
+#################################################
+[jenkins-master]
+10.1.1.211
+
+[jenkins-master:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=/opt/devopstep1.pem
+
+[jenkins-slave]
+10.1.1.182
+
+[jenkins-slave:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=/opt/devopstep1.pem
+#################################################
+
+```
+
+_To ping the jenkins master from ansible_
+
+```
+ansible all -i hosts -m ping
+```
+
+<img width="947" alt="image" src="https://github.com/user-attachments/assets/33b213bf-d07b-4785-a677-75a9e73ba5a5" />
+
+
+
+
+
+
+
+
+
+
+
 
 
 
