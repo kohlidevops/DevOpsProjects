@@ -1,6 +1,6 @@
 # To Setup DevOps Project Using Terraform, Ansible, Jenkins, Maven, SonarQube, Docker, Helm Charts, Kubernetes, Promotheus and Grafana
 
-**Pre-requisites**
+## Pre-requisites
 
 1. AWS CloudShell
 
@@ -24,4 +24,46 @@ sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinu
 sudo yum -y install terraform
 terraform -help
 ```
+
+4. Github repository
+
+source code repo - https://github.com/kohlidevops/tweet-trend-new
+
+lab code repo - https://github.com/kohlidevops/devops-workshop
+
+## Terraform to provisioning resources
+
+1. To create a simple Ec2 instance using terraform
+
+https://github.com/kohlidevops/devops-workshop/blob/main/terraform_code/V1-EC2.tf
+
+To change the values as per your environment and run the below command
+
+```
+terraform init
+terraform validate
+terraform plan
+terraform apply
+terraform destroy  #once your checked with your aws console, then you can destroy it
+```
+
+<img width="793" alt="image" src="https://github.com/user-attachments/assets/da54de5a-82ec-4ad9-bff5-4a99af570b03" />
+
+2. To create a Ec2 instance along with Security group
+
+https://github.com/kohlidevops/devops-workshop/blob/main/terraform_code/V2-EC2.tf
+
+```
+terraform init
+terraform validate
+terraform plan
+terraform apply
+terraform destroy  #once your checked with your aws console, then you can destroy it
+```
+
+
+
+
+
+
 
