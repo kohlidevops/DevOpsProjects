@@ -147,17 +147,51 @@ Refer - https://pkg.origin.jenkins.io/debian-stable/
 
 https://github.com/kohlidevops/devops-workshop/blob/main/Ansible/jenkins-master-setup.yaml
 
-To run the jenkins-master-setup file
+_To run the jenkins-master-setup file_
 
 ```
 ansible-playbook -i /opt/hosts jenkins-master-setup.yaml --check
 ansible-playbook -i /opt/hosts jenkins-master-setup.yaml
 ```
 
+<img width="943" alt="image" src="https://github.com/user-attachments/assets/92613cd6-36c9-416b-837c-98623b4307f5" />
 
+To access the jenkins portal
 
+<img width="796" alt="image" src="https://github.com/user-attachments/assets/5de5dca4-3478-42fa-b391-b9b5b2b49df1" />
 
+Install the suggested plugins and create a first admin user
 
+<img width="830" alt="image" src="https://github.com/user-attachments/assets/64c33f92-5e83-40bc-abaf-f375f612c8df" />
+
+<img width="773" alt="image" src="https://github.com/user-attachments/assets/5dd647e1-7daa-45a1-913e-d3c33d7e78b0" />
+
+let's save and finish to continue the jenkins
+
+**To install a Maven on jenkins-slave machine using ansible playbook**
+
+Refer - https://dlcdn.apache.org/maven/maven-3/
+
+https://github.com/kohlidevops/devops-workshop/blob/main/Ansible/v1-jenkins-slave-setup.yaml
+
+_To run the v1-jenkins-slave-setup.yaml_
+
+```
+ansible-playbook -i /opt/hosts v1-jenkins-slave-setup.yaml --check
+ansible-playbook -i /opt/hosts v1-jenkins-slave-setup.yaml
+```
+
+<img width="934" alt="image" src="https://github.com/user-attachments/assets/e079e066-ded5-45d8-a1d2-668800e512d3" />
+
+_SSH to jenkins-slave machine_
+
+```
+sudo -i
+cd /opt/apache-maven-3.9.4/bin
+./mvn --version
+```
+
+<img width="656" alt="image" src="https://github.com/user-attachments/assets/5d2c94bd-fd16-47ce-a932-0e97b2dc275f" />
 
 
 
