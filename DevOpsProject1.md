@@ -141,7 +141,7 @@ ansible all -i hosts -m ping
 
 <img width="947" alt="image" src="https://github.com/user-attachments/assets/33b213bf-d07b-4785-a677-75a9e73ba5a5" />
 
-**To install jenkins on jenkins-master machine using ansible playbook**
+**3. To install jenkins on jenkins-master machine using ansible playbook**
 
 Refer - https://pkg.origin.jenkins.io/debian-stable/
 
@@ -168,7 +168,7 @@ Install the suggested plugins and create a first admin user
 
 let's save and finish to continue the jenkins
 
-**To install a Maven on jenkins-slave machine using ansible playbook**
+**4. To install a Maven on jenkins-slave machine using ansible playbook**
 
 Refer - https://dlcdn.apache.org/maven/maven-3/
 
