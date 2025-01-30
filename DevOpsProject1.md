@@ -193,7 +193,68 @@ cd /opt/apache-maven-3.9.4/bin
 
 <img width="656" alt="image" src="https://github.com/user-attachments/assets/5d2c94bd-fd16-47ce-a932-0e97b2dc275f" />
 
+## Jenkins Configuration
 
+**1. To add a Maven server credential to the jenkins portal**
+
+Login to Jenkins portal > Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted) > New credentials > SSH username and private key > create
+
+```
+ID - maven-server-cred
+Username - ubuntu
+Private key - Enter directly
+```
+
+**2. To add a Maven server as a Jenkins Slave**
+
+Dashboard > Manage Jenkins > Nodes > New Node > create
+
+```
+Node name - maven-slave
+Type - Permanent Agent
+Number of executors: 3
+Remote root directory: /home/ubuntu/jenkins
+Labels: maven
+Usage: Use this node as much as possible
+Launch method: Launch agents via SSH
+Host: <Private_IP_of_Slave>
+Credentials: <Jenkins_Slave_Credentials>
+Host Key Verification Strategy: Non verifying Verification Strategy
+Availability: Keep this agent online as much as possible
+```
+
+If you check the logs of slave machine
+
+<img width="844" alt="image" src="https://github.com/user-attachments/assets/d5fe6f9f-e795-4df5-a993-414df2d194ae" />
+
+<img width="934" alt="image" src="https://github.com/user-attachments/assets/8692740b-5f7e-4e50-a856-b541c3ca453b" />
+
+If you check with jenkins-slave machine through SSH
+
+<img width="461" alt="image" src="https://github.com/user-attachments/assets/ee0dcc12-56ea-4ab8-87cd-5624a771d105" />
+
+
+**3. To test a simple project with jenkins-slave**
+
+Create a test-job with Freestyle project
+
+Configure > Choose > Restrict where this project can be run > 
+
+```
+Label Expression - maven
+Build Steps - Execute Shell - echo "Hello, I'm a Slave machine" >> /home/ubuntu/maven.txt
+```
+
+Apply & save - Run the build.
+
+<img width="897" alt="image" src="https://github.com/user-attachments/assets/80901cf3-24c8-452e-8086-02a2b58ec096" />
+
+If SSH to maven machine
+
+<img width="493" alt="image" src="https://github.com/user-attachments/assets/f4a4f4bc-1a4c-4745-b9cd-f733160e1df2" />
+
+
+4. 
 
 
 
