@@ -258,7 +258,7 @@ If SSH to maven machine
 
 
 
-4. To test a sample Hello world project with Pipeline in jenkins
+**4. To test a sample Hello world project with Pipeline in jenkins**
 
 Create a ttrend-job with Pipeline
 
@@ -287,7 +287,7 @@ Apply & Save then build the job.
 <img width="902" alt="image" src="https://github.com/user-attachments/assets/9f3b0e86-4509-4531-ac38-fa9f25cc4be7" />
 
 
-5. To add the Checkout stage in to the ttrend-job pipeline
+**5. To add the Checkout stage in to the ttrend-job pipeline**
 
 ```
 pipeline {
@@ -314,8 +314,74 @@ Apply & save - Then start the build
 
 <img width="658" alt="image" src="https://github.com/user-attachments/assets/fe30b8b0-df3e-4dce-9313-ad7fbda45219" />
 
+**6. To test a Hello World project with Jenkinsfile in Jenkins**
+
+Create a Jenkinsfile in your source code repository add the below code then to start the build
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/7d1544f3-2c8b-4892-923f-6bce1f12e3e7" />
 
 
+```
+pipeline {
+    agent {
+        node {
+            label 'maven'
+        }
+    }
+
+    stages {
+        stage('Clone-code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/kohlidevops/tweet-trend-new.git'
+            }
+        }
+    }
+}
+```
+
+Go to jenkins portal > ttrend-job > Configuration > Pipeline
+
+```
+Definition - Pipeline script from SCM
+SCM - Git
+Repository URL - https://github.com/kohlidevops/tweet-trend-new.git
+Branch Specifier - */main
+Script Path - Jenkinsfile
+```
+
+Apply & Save - Then build the job
+
+
+<img width="778" alt="image" src="https://github.com/user-attachments/assets/0430b6e7-1479-42b1-b51b-bcdbc3286438" />
+
+
+**7. To add a build stage into Jenkinsfile**
+
+To open the Jenkinsfile and update the below code
+
+```
+pipeline {
+    agent {
+        node {
+            label 'maven'
+        }
+    }
+environment {
+    PATH = "/opt/apache-maven-3.9.4/bin:$PATH"
+}
+    stages {
+        stage('build') {
+            steps {
+                sh 'mvn clean deploy'
+            }
+        }
+    }
+}
+```
+
+I remove the clone-code stage as it doesn't require, because Jenkins will clone when it is going to read the Jenkinsfile.
+
+Now trigger the build and check.
 
 
 
