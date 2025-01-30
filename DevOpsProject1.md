@@ -381,7 +381,15 @@ environment {
 
 I remove the clone-code stage as it doesn't require, because Jenkins will clone when it is going to read the Jenkinsfile.
 
-Now trigger the build and check.
+Now trigger the build and check. // Sometimes build getting failed due to the jdk-17 version. Try to downgrade to jdk-11 in maven server using below commands.
+
+```
+sudo apt install openjdk-11-jdk
+sudo update-alternatives --config java
+```
+
+<img width="801" alt="image" src="https://github.com/user-attachments/assets/dbf782e7-a91f-4329-8fe9-db4febe530e2" />
+
 
 
 
