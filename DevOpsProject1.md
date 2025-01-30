@@ -141,6 +141,7 @@ ansible all -i hosts -m ping
 
 <img width="947" alt="image" src="https://github.com/user-attachments/assets/33b213bf-d07b-4785-a677-75a9e73ba5a5" />
 
+
 **3. To install jenkins on jenkins-master machine using ansible playbook**
 
 Refer - https://pkg.origin.jenkins.io/debian-stable/
@@ -156,11 +157,13 @@ ansible-playbook -i /opt/hosts jenkins-master-setup.yaml
 
 <img width="943" alt="image" src="https://github.com/user-attachments/assets/92613cd6-36c9-416b-837c-98623b4307f5" />
 
-To access the jenkins portal
+
+_To access the jenkins portal_
 
 <img width="796" alt="image" src="https://github.com/user-attachments/assets/5de5dca4-3478-42fa-b391-b9b5b2b49df1" />
 
-Install the suggested plugins and create a first admin user
+
+_Install the suggested plugins and create a first admin user_
 
 <img width="830" alt="image" src="https://github.com/user-attachments/assets/64c33f92-5e83-40bc-abaf-f375f612c8df" />
 
@@ -254,7 +257,65 @@ If SSH to maven machine
 <img width="493" alt="image" src="https://github.com/user-attachments/assets/f4a4f4bc-1a4c-4745-b9cd-f733160e1df2" />
 
 
-4. 
+
+4. To test a sample Hello world project with Pipeline in jenkins
+
+Create a ttrend-job with Pipeline
+
+Pipeline > pipeline script > Choose Hello World and do some changes like below
+
+```
+pipeline {
+    agent {
+        node {
+            label 'maven'
+        }
+    }
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+    }
+}
+```
+
+Apply & Save then build the job.
+
+<img width="902" alt="image" src="https://github.com/user-attachments/assets/9f3b0e86-4509-4531-ac38-fa9f25cc4be7" />
+
+
+5. To add the Checkout stage in to the ttrend-job pipeline
+
+```
+pipeline {
+    agent {
+        node {
+            label 'maven'
+        }
+    }
+
+    stages {
+        stage('Clone-code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/kohlidevops/tweet-trend-new.git'
+            }
+        }
+    }
+}
+```
+
+Apply & save - Then start the build
+
+<img width="773" alt="image" src="https://github.com/user-attachments/assets/a55435e1-62b7-4c6b-a63b-2075949a53e2" />
+
+
+<img width="658" alt="image" src="https://github.com/user-attachments/assets/fe30b8b0-df3e-4dce-9313-ad7fbda45219" />
+
+
+
 
 
 
