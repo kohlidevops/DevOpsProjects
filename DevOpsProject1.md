@@ -447,14 +447,38 @@ It means, when the branch has Jenkinsfile it will auto-discover in the Jenkins c
 
 <img width="918" alt="image" src="https://github.com/user-attachments/assets/d0d047f4-a3ee-4850-b522-f0651de1de83" />
 
+
 **10. To Setup Webhook in Github**
 
 Why Webhook? - When any new changes occur in the Source code repository, then this webhook will help jenkins to trigger the build automatically.
 
+_a. Install "multibranch scan webhook trigger" plugin_
 
+From dashboard > manage jenkins > manage plugins > Available Plugins > Search for "Multibranch Scan webhook Trigger" plugin > install it
 
+_b. Go to multibranch pipeline job _
 
+job > configure > Scan Multibranch Pipeline Triggers > Scan by webhook > Trigger token: <latchu-scan>
 
+<img width="880" alt="image" src="https://github.com/user-attachments/assets/1a2e164f-cca1-4afd-a126-3c2cc8febb12" />
+
+apply > save
+
+_c. Add webhook to GitHub repository _
+
+Github repo (your source code repo) > settings > webhooks > Add webhook
+
+```
+Payload URl: http://43.204.22.22:8080/multibranch-webhook-trigger/invoke?token=latchu-scan
+Content type: application/json
+Which event would you like to trigger this webhook: just the push event
+```
+
+<img width="822" alt="image" src="https://github.com/user-attachments/assets/db2815ce-0917-4652-98f0-a531a4c83176" />
+
+Do some changes in both "main" and "dev" branch - Then it should auto trigger the build through webhooks
+
+<img width="832" alt="image" src="https://github.com/user-attachments/assets/6a01bc72-a318-4628-b275-3085cbb263d7" />
 
 
 
