@@ -481,6 +481,150 @@ Do some changes in both "main" and "dev" branch - Then it should auto trigger th
 <img width="832" alt="image" src="https://github.com/user-attachments/assets/6a01bc72-a318-4628-b275-3085cbb263d7" />
 
 
+## SonarQube Integration with Jenkins
 
+**1. To Setup SonarQube account and add Sonar credentials to the Jenkins**
+
+_a. Create Sonar cloud account_
+
+https://sonarcloud.io > Login with Github > Authorize the account
+
+<img width="937" alt="image" src="https://github.com/user-attachments/assets/f429efc5-ce09-4301-a832-5d1653943961" />
+
+_b. Generate an Authentication token on SonarQube_     
+
+Account > my account > Security > Generate Tokens
+
+<img width="653" alt="image" src="https://github.com/user-attachments/assets/f87342d4-b711-4291-a3cc-08875c38a8cb" />
+
+_c. On Jenkins create credentials _   
+
+Manage Jenkins > manage credentials > system > Global credentials > add credentials
+
+```
+Credentials type: Secret text
+ID: sonarqube-key
+save
+```
+
+_d. Install SonarQube plugin_
+
+Manage Jenkins > Available plugins > Search for > sonarqube scanner > install it
+
+_e. Configure sonarqube server_
+
+Manage Jenkins > Configure System > sonarqube server  > Sonarqube installation > Add Sonarqube server    
+
+```
+Name: sonar-server    
+Server URL: https://sonarcloud.io
+Server authentication token: sonar-cred
+```
+
+_f. Configure sonarqube scanner_
+
+Manage Jenkins > Global Tool configuration > SonarQube Scanner installations > Add sonarqube scanner
+
+```
+Sonarqube scanner: sonar-scanner
+Version - SonarQube Scanner 4.8.0.2856
+Apply & Save
+```
+
+<img width="832" alt="image" src="https://github.com/user-attachments/assets/6aabd7ca-6e7d-4077-8aad-128ff775620f" />
+
+**2. To create a new sonar properties**
+
+Go to https://sonarcloud.io/
+
+My account > Organizations > Create > You can create one manually 
+
+<img width="952" alt="image" src="https://github.com/user-attachments/assets/e8a0914f-746a-4aa8-b7c1-b1573f0dcf1c" />
+
+Create an Organization
+
+```
+Name - latchu
+key - latchu
+Choose a plan - Free
+Create organization
+```
+
+<img width="802" alt="image" src="https://github.com/user-attachments/assets/6ce88b7c-19e4-4aad-9d9c-71e6df08532b" />
+
+To analyze a new project
+
+```
+Organization - latchu
+Display Name - ttrend
+Project key - latchu_ttrend
+Project visibility - Public
+Number of days - 30
+Create Project
+```
+
+_To create a file named "sonar-project.properties" in your source code repository with below contents_
+
+```
+sonar.verbose=true
+sonar.organization=latchu
+sonar.projectKey=latchu_ttrend
+sonar.projectName=ttrend
+sonar.language=java
+sonar.sourceEncoding=UTF-8
+sonar.sources=.
+sonar.java.binaries=target/classes
+sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+```
+
+<img width="810" alt="image" src="https://github.com/user-attachments/assets/70dacd84-f82d-4c65-92cd-4b00c926ef31" />
+
+To refer below link to get a sonar stages for jenkins file
+
+https://docs.sonarsource.com/sonarqube-server/10.1/analyzing-source-code/scanners/jenkins-extension-sonarqube/
+
+```
+stage('SonarQube analysis') {
+environment {
+	scannerHome = tool 'sonar-scanner'
+}
+steps {
+	withSonarQubeEnv('sonarqube-server') {  
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+}
+```
+
+Your Jenkinsfile should like below once you updated the sonarqube stage
+
+```
+pipeline {
+    agent {
+        node {
+            label 'maven'
+        }
+    }
+environment {
+    PATH = "/opt/apache-maven-3.9.4/bin:$PATH"
+}
+    stages {
+        stage('build') {
+            steps {
+                sh 'mvn clean deploy'
+            }
+        }
+        stage('SonarQube analysis') {
+            environment {
+                scannerHome = tool 'sonar-scanner'
+                }
+            steps {
+                withSonarQubeEnv('sonarqube-server') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+}
+```
 
 
