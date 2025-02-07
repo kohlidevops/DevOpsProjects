@@ -390,8 +390,66 @@ sudo update-alternatives --config java
 
 <img width="801" alt="image" src="https://github.com/user-attachments/assets/dbf782e7-a91f-4329-8fe9-db4febe530e2" />
 
+**8. To add a GitHub credentials to Jenkins**
 
+GitHub source code repo > Profile > Settings > Developer Settings > Personal Access Tokens > Tokens (Classic) > New Personal Access Token > Generate Token
 
+<img width="752" alt="image" src="https://github.com/user-attachments/assets/60943a5d-b68d-4088-9510-df3f7e82f696" />
+
+Navigate to Jenkins console > Manage Jenkins > Credentials > System > Global > Add Credentials > User name with password
+
+```
+Kind - Username and password
+Username - kohlidevops
+Password - Jenkins-Token
+ID - Github_Cred
+Save
+```
+
+<img width="851" alt="image" src="https://github.com/user-attachments/assets/087cb61f-36e1-4405-8d58-b260eb164612" />
+
+_To update the Github creds to the ttrend-job project_
+
+ttrend-project > configure > update in SCM
+
+<img width="646" alt="image" src="https://github.com/user-attachments/assets/f32c70f6-f0b8-4d9b-afd2-aa3e5e35915e" />
+
+Apply & Save - Build the project
+
+<img width="755" alt="image" src="https://github.com/user-attachments/assets/92017ff4-2139-480d-bbb0-8b4509b8022a" />
+
+**9. To Setup a Multi-branch Pipeline**
+
+Jenkins console> New Item > ttrend-multibranch > Multibranch Pipeline > create
+
+```
+Branch Sources > Git
+Project Repository > https://github.com/kohlidevops/tweet-trend-new.git
+Credentials > Choose your creds
+Build Configuration > Mode > by Jenkinsfile
+Script Path > Jenkinsfile
+Apply & Save
+```
+
+Once you saved, then it will automatically discover the "main" branch and start the build. If you create a new branch from main branch in Github, then it will start the build once you choose "Scan Multibranch Pipeline Now" in Jenkins console.
+
+<img width="907" alt="image" src="https://github.com/user-attachments/assets/7db19f60-2ed0-42ca-a64d-825bcdca2feb" />
+
+Now create a new branch in Github
+
+<img width="845" alt="image" src="https://github.com/user-attachments/assets/9980a546-e27a-4b8e-9351-dc53d9bae81f" />
+
+If you "Scan Multibranch Pipeline Now", then you can find the dev branch in Jenkins and as well its getting initiated the build.
+
+<img width="910" alt="image" src="https://github.com/user-attachments/assets/3b935eee-73b6-4998-923a-afea7c7c82f9" />
+
+It means, when the branch has Jenkinsfile it will auto-discover in the Jenkins console, as well initiate the build. If there is no Jenkinsfile in any branch it will not discover by Jenkins console.
+
+<img width="918" alt="image" src="https://github.com/user-attachments/assets/d0d047f4-a3ee-4850-b522-f0651de1de83" />
+
+**10. To Setup Webhook in Github**
+
+Why Webhook? - When any new changes occur in the Source code repository, then this webhook will help jenkins to trigger the build automatically.
 
 
 
