@@ -73,6 +73,32 @@ sudo su
 su - ubuntu
 ```
 
+- To SSh all nodes and update all the Public IP with their hostname
+
+```
+sudo vi/etc/hosts
+
+3.111.42.75 master
+13.126.22.62 worker1
+13.127.133.146 worker2
+```
+
+Now you can SSH from one node to another node using their public ip
+
+- To install containerd on all nodes using below script
+
+```
+sudo vi containerd-install.sh
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/containerd-install.sh
+
+sudo chmod u+x containerd-install.sh
+sh containerd-install.sh
+service containerd status
+```
+
+
+
 
 
 
