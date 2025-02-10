@@ -8,31 +8,31 @@
 
 - Security scan by KubeAudit on Kubernetes cluster
 
-3: Set up VM's for Jenkins,Nexus,Maven,and SonarQube tools
+- Set up VM's for Jenkins,Nexus,Maven,and SonarQube tools
 
-4: Git Bash and GitHub
+- Git Bash and GitHub
 
-5: Customize the Jenkins
+- Customize the Jenkins
 
-6:Create a Jenkins pipeline job to check out the project
+- Create a Jenkins pipeline job to check out the project
 
-7: Compile and run unit test cases on source code
+- Compile and run unit test cases on source code
 
-8: Trivy tool - Vulnerability Scan on Source Code
+- Trivy tool - Vulnerability Scan on Source Code
 
-9: SonarQube - Code quality tool for better code
+- SonarQube - Code quality tool for better code
 
-10: Build the package: Using maven tool
+- Build the package: Using maven tool
 
-11: Upload the artifact to the Nexus Repository
+- Upload the artifact to the Nexus Repository
 
-12: Build and Tag the Docker Image
+- Build and Tag the Docker Image
 
-13: Docker Image Scanning by Trivy tool
+- Docker Image Scanning by Trivy tool
 
-14: Push the docker image to DockerHub
+- Push the docker image to DockerHub
 
-15: Deploy the application to a Kubernetes cluster environment
+- Deploy the application to a Kubernetes cluster environment
 
-16: Monitoring with Prometheus and Grafana
+- Monitoring with Prometheus and Grafana
 
