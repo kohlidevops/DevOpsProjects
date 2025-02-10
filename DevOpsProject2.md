@@ -36,3 +36,44 @@
 
 - Monitoring with Prometheus and Grafana
 
+## To Set up a Kubernetes cluster in an AWS environment
+
+Launch 3 EC2 ubuntu-22 instances - one for Master another 2 for Worker nodes
+
+<img width="952" alt="image" src="https://github.com/user-attachments/assets/9a91e755-d33a-4278-b39c-ee0dbe06787a" />
+
+- To SSH to master node and connect other worker nodes from master using private key
+
+- To perform below commands in master and worker nodes
+
+master node
+
+```
+sudo swapoff -a
+sudo hostnamectl set-hostname master
+sudo su
+su - ubuntu
+```
+
+worker node 1
+
+```
+sudo swapoff -a
+sudo hostnamectl set-hostname worker1
+sudo su
+su - ubuntu
+```
+
+worker node 2
+
+```
+sudo swapoff -a
+sudo hostnamectl set-hostname worker2
+sudo su
+su - ubuntu
+```
+
+
+
+
+
