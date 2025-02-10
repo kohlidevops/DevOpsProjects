@@ -97,6 +97,63 @@ sh containerd-install.sh
 service containerd status
 ```
 
+- To install kubeadm, kubelet and kubectl on all nodes using below script
+
+```
+sudo vi k8s-install.sh
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/k8s-install.sh
+
+sudo chmod u+x k8s-install.sh
+sh k8s-install.sh
+kubeadm version
+kubectl version
+service kubelet status //in-active - because not initialized the cluster
+```
+
+- To initialize the kubeadm in master node
+
+```
+sudo kubeadm init
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl get nodes // not ready
+kubectl get pod -A //The connection to the server 172.31.10.77:6443 was refused - did you specify the right host or port? - For this, you do follow the below things
+journalctl -u kubelet.service //so many errors - by default cgroups using to manager the container - but it should use systemd - For this
+sudo vi /etc/containerd/config.toml // To find and change to true "SystemdCgroup = true"
+sudo service containerd restart
+sudo service kubelet restart
+kubectl aaply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+kubectl get pods -A
+kubectl get nodes
+```
+
+<img width="787" alt="image" src="https://github.com/user-attachments/assets/c19c4086-bc9a-4717-9baa-746923232726" />
+
+- To join worker nodes to kubernetes cluster
+
+First run below command to get the token in master node
+
+```
+kubeadm token create --print-join-command
+//sudo kubeadm join 172.31.10.77:6443 --token 8lcuoq.bwefohhp5e2opkf4 --discovery-token-ca-cert-hash sha256:4e45c2a979adb435ac3484eeee072b08689b38e849e9478a0cbd5c4a95b233a7
+```
+
+Now run below command in worker nodes
+
+```
+sudo kubeadm join 172.31.10.77:6443 --token 8lcuoq.bwefohhp5e2opkf4 --discovery-token-ca-cert-hash sha256:4e45c2a979adb435ac3484eeee072b08689b38e849e9478a0cbd5c4a95b233a7
+```
+
+Now check with master nodes
+
+```
+kubectl get nodes
+```
+
+<img width="554" alt="image" src="https://github.com/user-attachments/assets/fbfc4bf3-da9a-49b1-9eea-d1bb5d0e3985" />
 
 
 
