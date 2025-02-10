@@ -4,9 +4,9 @@
   ![Untitled Diagram11](https://github.com/user-attachments/assets/278ad3de-1a8c-4af1-8f35-d2d94983172c)
 
 
-1: Set up a Kubernetes cluster in an AWS environment
+- Set up a Kubernetes cluster in an AWS environment
 
-2: Security scan by KubeAudit on Kubernetes cluster
+- Security scan by KubeAudit on Kubernetes cluster
 
 3: Set up VM's for Jenkins,Nexus,Maven,and SonarQube tools
 
