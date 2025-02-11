@@ -224,6 +224,127 @@ kubeaudit all --kubeconfig /home/ubuntu/.kube/config --context kubernetes-admin@
 ```
 
 
+## To Setup Jenkins, Maven, SonarQube and Nexus
 
+- Create a VM for SonarQube and Nexus
+
+To launch 2 EC2 ubuntu (22.04) instances with T3.medium
+
+- Install Docker in SonarQube Server
+
+SSH to SonarQube Server
+
+Refer - https://docs.docker.com/engine/install/ubuntu/
+
+```
+sudo hostnamectl set-hostname Sonarqube
+sudo su
+su - ubuntu
+sudo apt-get update -y
+sudo apt-get update
+
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo chmod 666 /var/run/docker.sock
+docker run hello-world
+docker image ls
+```
+
+- Install SonarQube using Docker
+
+```
+docker login -u latchudevops
+docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+docker ps
+```
+
+Now you can access the sonarqube portal with server-ip:9000
+
+```
+default username - admin
+default password - admin
+```
+
+Now update the custom password
+
+<img width="896" alt="image" src="https://github.com/user-attachments/assets/78e5e760-045e-431e-a6c2-1cf8f684b304" />
+
+
+- Install Docker in Nexus Server
+
+SSH to Nexus Server
+
+Refer - https://docs.docker.com/engine/install/ubuntu/
+
+```
+sudo hostnamectl set-hostname Nexus
+sudo su
+su - ubuntu
+sudo apt-get update -y
+
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo chmod 666 /var/run/docker.sock
+docker run hello-world
+docker image ls
+```
+
+- Install Nexus using Docker
+
+```
+docker login -u latchudevops
+docker run -d --name Nexus -p 8081:8081 sonatype/nexus3
+docker ps
+```
+
+- To login to the Nexus container
+
+```
+docker exec -it <container-id> /bin/bash
+docker exec -it 02e776cc5c95 /bin/bash
+$cd sonatype-work/nexus3/
+$cat admin.password
+```
+
+You can access the Nexus by ServerIP:8081
+
+<img width="944" alt="image" src="https://github.com/user-attachments/assets/bd4de10d-f521-411b-a1e2-82c7733c2937" />
+
+```
+default username - admin
+default password -
+//To change the password and enable anonymous access to start
+```
+
+<img width="941" alt="image" src="https://github.com/user-attachments/assets/fb1802ab-c043-4e2c-be6d-fc67139c1b87" />
+
+
+
+
+
+
+
+
+- 
 
 
