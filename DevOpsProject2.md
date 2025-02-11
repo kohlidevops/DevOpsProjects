@@ -199,6 +199,29 @@ sudo kubeaudit autofix -f pod.yaml -o fixed-pod.yaml  //To reduce the errors and
 kubeaudit all -f fixed-pod.yaml //Now check
 ```
 
+- KubeAudit to Scan the Cluster
+
+SSh to master node
+
+```
+kubeaudit all
+```
+
+If you are not installing KubeAudit on the cluste, but you want to audit the cluster - There is a way to run a kubeaudit container using kubectl command
+
+```
+kubectl run kubeaudit --image shopify/kubeaudit --rm -it //All checks are completed
+```
+
+- KubeAudit to Scan the Local
+
+SSH to master node
+
+```
+kubectl config current-context //To get the current context
+kubeaudit all --kubeconfig <path-to-config> --context <my-cluster-name>
+kubeaudit all --kubeconfig /home/ubuntu/.kube/config --context kubernetes-admin@kubernetes
+```
 
 
 
