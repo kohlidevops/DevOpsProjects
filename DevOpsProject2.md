@@ -230,6 +230,10 @@ kubeaudit all --kubeconfig /home/ubuntu/.kube/config --context kubernetes-admin@
 
 To launch 2 EC2 ubuntu (22.04) instances with T3.medium
 
+
+<img width="785" alt="image" src="https://github.com/user-attachments/assets/de8c958e-0e87-4396-ba9c-6ea872e1db47" />
+
+
 - Install Docker in SonarQube Server
 
 SSH to SonarQube Server
