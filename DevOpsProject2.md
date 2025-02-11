@@ -156,6 +156,50 @@ kubectl get nodes
 <img width="554" alt="image" src="https://github.com/user-attachments/assets/fbfc4bf3-da9a-49b1-9eea-d1bb5d0e3985" />
 
 
+## To Security Scan by KubeAudit on Kubernetes Cluster
+
+- kubeaudit, an open source tool created by the folks at Shopify, can be used to perform a security audit of Kubernetes clusters to find common low hanging fruits that are often exploited by attackers.
+
+- kubeaudit can be run in 3 modes based on the location of the cluster and your access.
+
+1. Manifest mode - Use this mode to audit Kubernetes YAML manifests before applying them to a cluster. This checks the security best practices in deployment.yaml before deploying it.
+
+2. Local mode - Use this mode when you have kubectl access to a cluster but want to audit local configurations.
+
+3. Cluster mode - Use this mode to audit live resources in a running cluster.
+
+
+- To download and install KubeAudit
+
+Refer - https://github.com/Shopify/kubeaudit/releases
+
+SSH to master node
+
+```
+sudo mkdir kubeaudit
+cd kubeaudit/
+sudo wget https://github.com/Shopify/kubeaudit/releases/download/v0.22.1/kubeaudit_0.22.1_linux_amd64.tar.gz
+sudo tar -xvzf kubeaudit_0.22.1_linux_amd64.tar.gz 
+ls -lh
+sudo mv kubeaudit /usr/local/bin/
+```
+
+- KubeAudit to Scan the Manifest file
+
+SSH to master node
+
+```
+cd /home/ubuntu/kubeaudit
+sudo nano pod.yaml
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/pod.yaml
+
+kubeaudit all -f pod.yaml //There are lot of errors
+sudo kubeaudit autofix -f pod.yaml -o fixed-pod.yaml  //To reduce the errors and warnings
+kubeaudit all -f fixed-pod.yaml //Now check
+```
+
+
 
 
 
