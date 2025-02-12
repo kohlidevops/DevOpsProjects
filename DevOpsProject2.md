@@ -342,6 +342,63 @@ default password -
 
 <img width="941" alt="image" src="https://github.com/user-attachments/assets/fb1802ab-c043-4e2c-be6d-fc67139c1b87" />
 
+- Install Jenkins, Docker and Configure
+
+Launch one Ubuntu-22 EC2 instance with T3.medium and install jenkins on it
+
+<img width="780" alt="image" src="https://github.com/user-attachments/assets/10da54aa-d025-424a-ada4-d43806d80ead" />
+
+SSH to server
+
+Refer - https://www.jenkins.io/doc/book/installing/linux/
+
+```
+sudo hostnamectl set-hostname Jenkins
+sudo su
+su - ubuntu
+sudo apt-get update -y
+sudo apt install openjdk-17-jre-headless
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins -y
+
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo chmod 666 /var/run/docker.sock
+docker run hello-world
+docker image ls
+```
+
+To access the jenkins, install suggested plugins and create a new admin user
+
+<img width="948" alt="image" src="https://github.com/user-attachments/assets/710130b4-41bb-48ea-9f0a-4be20cf3a920" />
+
+
+## To Setup Github repo
+
+To create a repo named techgame as a private in Github
+
+<img width="791" alt="image" src="https://github.com/user-attachments/assets/a537747c-4949-40d1-a92a-fa825e9c3e22" />
+
+To create a Github token and keep it safely to use
+
+Github > Settings > Developer setting > Generate classic token
+
+<img width="863" alt="image" src="https://github.com/user-attachments/assets/87030a64-507f-4004-b582-3d8d6ec25008" />
 
 
 
@@ -349,6 +406,5 @@ default password -
 
 
 
-- 
 
 
