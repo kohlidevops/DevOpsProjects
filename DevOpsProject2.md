@@ -421,14 +421,85 @@ git commit -am "source code added"
 git push
 ```
 
+
 <img width="926" alt="image" src="https://github.com/user-attachments/assets/2946facc-cc5e-402f-ad0c-a1cda78167b7" />
 
 Once push the code the repo then you can able to see the updated code in Github
 
 
+## To Customize the Jenkins
+
+- Install the required Plugins in Jenkins console
+
+Login to the Jenkins console > Manage Jenkins > Plugins > install below plugins
+
+```
+Eclipse Temurin installer
+Maven Integration
+Config File Provider
+Pipeline Maven Integration
+SonarQube Scanner
+Docker
+Docker Pipeline
+Kubernetes
+Kubernetes Client API
+Kubernetes Credentials
+Kubernetes CLI
+```
+
+- To Configure tools - JDK, SonarQube Scanner, Maven and Docker
+
+Manage Jenkins > tools > JDK installation > Add JDK
+
+```
+Name - jdk17
+Choose - Install automatically
+Install from adoptium.net - Version - jdk-17.0.9+9.1
+```
+
+<img width="792" alt="image" src="https://github.com/user-attachments/assets/00d60375-aa98-4740-adf9-337c30b7f2af" />
 
 
+Add SonarQube Scanner installations 
 
+Tools > SonarQube Scanner installations > Add SonarQube Scanner
+
+```
+Name - sonar-scanner
+Install automatically - Install from Maven Central
+Version - SonarQube Scanner 6.1.0.4477
+```
+
+<img width="839" alt="image" src="https://github.com/user-attachments/assets/420526c1-4d10-4e54-9f26-03b15bcdb1eb" />
+
+
+Add Maven installation
+
+Tools > Maven installation > Add Maven
+
+```
+Name - maven3
+Install automatically - Install from Apache
+Version = 3.9.8
+```
+
+<img width="818" alt="image" src="https://github.com/user-attachments/assets/fae60c40-0587-4425-b149-a2de207f67e3" />
+
+
+Add Docker installation
+
+Tools > Docker Installation > Add Docker
+
+```
+Name - docker
+Install automatically - Download from docker.com
+Docker version - latest
+```
+
+<img width="840" alt="image" src="https://github.com/user-attachments/assets/9cd820dc-b1c7-4456-8b10-1440898800ae" />
+
+
+Apply & save
 
 
 
