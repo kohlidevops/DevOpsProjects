@@ -400,6 +400,22 @@ Github > Settings > Developer setting > Generate classic token
 
 <img width="863" alt="image" src="https://github.com/user-attachments/assets/87030a64-507f-4004-b582-3d8d6ec25008" />
 
+Download the source code in local machine using below link
+
+```
+https://github.com/kohlidevops/DevOpsProjects/blob/main/SourceCode.zip
+```
+
+To clone the repo in local machine and open gitbash in below path
+
+C:\Users\latchu\Downloads\SourceCode\SourceCode\techgame
+
+```
+//Gitbash open and clone
+https://github.com/kohlidevops/techgame.git
+//Place all the files inside this folder
+```
+
 
 
 
