@@ -411,10 +411,18 @@ To clone the repo in local machine and open gitbash in below path
 C:\Users\latchu\Downloads\SourceCode\SourceCode\techgame
 
 ```
+cd techgame
 //Gitbash open and clone
 https://github.com/kohlidevops/techgame.git
 //Place all the files inside this folder
+ls -lh
+git add .
+git commit -am "source code added"
+git push
 ```
+
+<img width="926" alt="image" src="https://github.com/user-attachments/assets/2946facc-cc5e-402f-ad0c-a1cda78167b7" />
+
 
 
 
