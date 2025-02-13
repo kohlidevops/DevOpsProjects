@@ -501,7 +501,59 @@ Docker version - latest
 
 Apply & save
 
+## To Create a Jenkins Pipeline to Checkout the Project
 
+To create a new project named "techgame" with Pipeline.
 
+General > Choose > Discard old builds
+
+```
+Strategy - Log Rotation
+Max # of builds to keep - 2
+Definition - Pipeline script
+```
+
+To create a credential in Jenkins console
+
+Credentials > System > Global > Username and password
+
+```
+User name - kohlidevops
+password - <git-token>
+ID - git-cred
+create
+```
+
+You can referr the Pipeline syntax to create script for example - git:Git
+
+```
+Sample Step - git:Git
+Repository URL - https://github.com/kohlidevops/techgame.git
+Branch - main
+Credentials - <your cred>
+Generate Pipeline script
+```
+
+Now your Checkout code could be 
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+    }
+}
+```
+
+Apply and save - to run the build
 
 
