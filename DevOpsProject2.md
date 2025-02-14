@@ -774,4 +774,142 @@ Apply & Save - To run the build. The build has been succeeded with Quality analy
 <img width="928" alt="image" src="https://github.com/user-attachments/assets/49b31cd3-1891-4108-8c03-d170ca600401" />
 
 
+- To Create a Webhook in Sonar Server
+
+Sonar server > Login > Administration > Configuration > Webhook > Create
+
+```
+Name - jenkins
+URL - http://15.207.112.70:8080/sonarqube-webhook/
+Create
+```
+
+- To add the Quality Gate Check
+
+Once you added the Quality Gate check stage, then your code would be
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+    }
+}
+```
+
+Apply & Save - To run the build.
+
+<img width="851" alt="image" src="https://github.com/user-attachments/assets/4dfd2c5f-d5ff-4a20-98f6-baad649904f8" />
+
+
+## To build the package using Maven tool
+
+After adding the build package stage into the Jenkins pipeline
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+    }
+}
+```
+
+<img width="932" alt="image" src="https://github.com/user-attachments/assets/4c979aae-04af-41c8-9a66-ccaa80c70eda" />
+
+
+After build the package stage, the jar file will be availablle in - /var/lib/jenkins/workspace/techgame/target/
+
+
+
+
 
