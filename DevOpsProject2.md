@@ -686,7 +686,92 @@ The build has been succeeded
 The trivy report is available in - /var/lib/jenkins/workspace/techgame
 
 
+## To check Code Quality using SonarQube tool
 
+- To generate the SonarQube token
+
+Access the SonarQube Server > Login > Administration > Security > Token > Generate Tokens >
+
+```
+Name - sonar-token
+Generate
+//Keep this token safely
+```
+
+- To Configure the Sonar token in Jenkins credentials
+
+Jenkins > Manage Jenkins > Credentials > System > Global > Add Credentials
+
+```
+Kind - Secret text 
+Secret - ********* //Place that sonar-token value
+ID - sonar-token
+create
+```
+
+<img width="856" alt="image" src="https://github.com/user-attachments/assets/61348742-9a09-4814-84ec-a374d0e54ab3" />
+
+
+- To add a SonarQube Server
+
+Jenkins > Manage Jenkins > System > SonarQube installation
+
+```
+Name - sonar
+Server URL - http://43.204.211.37:9000
+Server authentication token - sonar-token //what you have created now
+Apply & Save
+```
+
+After add the SonarQube analysis stage into Pipleine
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+    }
+}
+```
+
+Apply & Save - To run the build. The build has been succeeded with Quality analysis on code
+
+<img width="928" alt="image" src="https://github.com/user-attachments/assets/49b31cd3-1891-4108-8c03-d170ca600401" />
 
 
 
