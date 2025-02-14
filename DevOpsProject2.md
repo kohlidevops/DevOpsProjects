@@ -627,7 +627,66 @@ pipeline {
 }
 ```
 
-The build has been succeeded with Compile and run the unit test case. Now I will go to analyse the code using SonarQube tool
+The build has been succeeded with Compile and run the unit test case.
+
+## To Vulnerability on Source Code using Trivy
+
+Refer - https://trivy.dev/v0.20.2/getting-started/installation/
+
+SSH to Jenkins server and install Trivy 
+
+```
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+trivy --version
+```
+
+After update the Trivy stage in Jenkins Pipeline
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+    }
+}
+```
+
+The build has been succeeded
+
+<img width="906" alt="image" src="https://github.com/user-attachments/assets/d576a218-7f82-4868-8c75-ad0a12a17008" />
+
+The trivy report is available in - /var/lib/jenkins/workspace/techgame
+
+
+
 
 
 
