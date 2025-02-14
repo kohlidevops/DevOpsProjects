@@ -454,7 +454,7 @@ Manage Jenkins > tools > JDK installation > Add JDK
 ```
 Name - jdk17
 Choose - Install automatically
-Install from adoptium.net - Version - jdk-17.0.9+9.1
+Install from adoptium.net - Version - jdk-17+35
 ```
 
 <img width="792" alt="image" src="https://github.com/user-attachments/assets/00d60375-aa98-4740-adf9-337c30b7f2af" />
@@ -555,5 +555,79 @@ pipeline {
 ```
 
 Apply and save - to run the build
+
+The build has been succeeded.
+
+You can check the source code in below path of Jenkins server
+
+```
+/var/lib/jenkins/workspace/techgame
+```
+
+<img width="907" alt="image" src="https://github.com/user-attachments/assets/11d37f2c-4064-4424-906d-7c56bdb462e6" />
+
+
+## To Compile the Source code
+
+For Maven Lifecycle you can refer - https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+    }
+}
+```
+
+Run the build. Now the "target" directory should created in "/var/lib/jenkins/workspace/techgame" localtion once compiled.
+
+
+## To run the Unit Test cases on Source code
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+    }
+}
+```
+
+The build has been succeeded with Compile and run the unit test case. Now I will go to analyse the code using SonarQube tool
+
 
 
