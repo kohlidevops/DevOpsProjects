@@ -951,3 +951,326 @@ submit
 <img width="707" alt="image" src="https://github.com/user-attachments/assets/acc19707-43a0-452f-b308-e6a68ff5be14" />
 
 
+- To add a Publish Artifact to the Nexus Repository Stage
+
+Use Pipeline syntax to generate > Pipeline syntax
+
+```
+Sample step - withMaven: Provide Maven Environment
+Maven - maven3
+JDK - jdk17
+Global Maven Settings Config - MyGlobalSettings
+//These are the values what we have created before
+Generate the pipeline script and apply this to the stage in Pipeline
+```
+
+Jenkins > Project > Configure > Pipeline
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage('Publish the Artifacts to the Nexus Repository') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        }
+    }
+```
+
+After the build has been succeeded
+
+<img width="946" alt="image" src="https://github.com/user-attachments/assets/9ccaff17-0c96-42b4-8662-1dc1bc466997" />
+
+If you check with Nexus Repository > Maven Releases
+
+<img width="731" alt="image" src="https://github.com/user-attachments/assets/2ecd9c30-cd38-4ab4-bcbb-d33cc865293c" />
+
+Your package has been successfully released to Nexus repository
+
+
+## To Build and Tag the Docker Image
+
+- To Create a Dockerfile
+
+To create a Dockerfile in Jenkins server with below location path
+
+/var/lib/jenkins/workspace/techgame/
+
+docker login -u latchudevops
+
+sudo vi Dockerfile
+
+```
+FROM adoptopenjdk/openjdk11
+EXPOSE 8080
+ENV APP_HOME /usr/src/app
+COPY target/*.jar $APP_HOME/app.jar
+WORKDIR $APP_HOME
+CMD ["java", "-jar", "app.jar"]
+```
+
+- To update the pom.xml to send snapshots to Nexus Snapshot
+
+Open > pom.xml in Source code repo > edit > 0.04-SNAPSHOT
+
+<img width="545" alt="image" src="https://github.com/user-attachments/assets/552035f9-ede6-4a81-9ee4-a49008cfed75" />
+
+
+- To create a docker hub credentials in Jenkins credentials
+
+Jenkins > Manage Jenkins > Credentials > System > Global > Add credential >
+
+```
+Kind - Username and Password
+Username - latchudevops
+Password - ******
+ID - dock-cred
+Create
+```
+
+- To generate the stage using Pipeline syntax
+
+```
+Sample step - withDockerRegistry: Sets up Docker registry endpoint
+Registry credential - latchudevops //Select what you created now
+Generate
+```
+
+After adding the stage
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage('Publish the Artifacts to the Nexus Repository') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        stage('To Build and Tag the Docker Image') {
+            steps {
+                scripts {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker build -t latchudevops/techgame:latest ."
+                        
+                    }
+                }
+            }
+        }
+        }
+    }
+```
+
+Apply & save - To run the build - The build has been succeeded
+
+<img width="917" alt="image" src="https://github.com/user-attachments/assets/8d46235a-dab9-4307-8acb-be1d8bc0cdc0" />
+
+The snapshots are available in Nexus repository
+
+<img width="707" alt="image" src="https://github.com/user-attachments/assets/dadc38c0-b717-4813-b76d-d6f446e9b142" />
+
+The docker images are available in Jenkins server
+
+
+## To Scan the Docker Image using Trivy tool
+
+To add the docker scanning image stage into the Jenkins pipeline
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage('Publish the Artifacts to the Nexus Repository') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        stage('To Build and Tag the Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker build -t latchudevops/techgame:latest ."
+                        
+                    }
+                }
+            }
+        }
+        stage('Docker Image Scanning using Trivy') {
+            steps {
+                sh "trivy image --format table -o trivy-image-report.html latchudevops/techgame"
+            }
+        }
+        }
+    }
+```
+
+Apply and save - to run the build
+
+<img width="953" alt="image" src="https://github.com/user-attachments/assets/4a7e0668-d2ea-4494-a6ab-28374abf5d26" />
+
+
+If you check with Jenkins server for trivy report for image scanning
+
+<img width="560" alt="image" src="https://github.com/user-attachments/assets/d92d1369-e989-4d7d-8787-16017784c364" />
+
+
+## To Push the Docker Image to Docker Hub Registry
+
+
+
+
+
+
+
