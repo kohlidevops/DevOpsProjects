@@ -1268,6 +1268,105 @@ If you check with Jenkins server for trivy report for image scanning
 
 ## To Push the Docker Image to Docker Hub Registry
 
+After adding the stage in pipeline
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage('Publish the Artifacts to the Nexus Repository') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        stage('To Build and Tag the Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker build -t latchudevops/techgame:latest ."
+                        
+                    }
+                }
+            }
+        }
+        stage('Docker Image Scanning using Trivy') {
+            steps {
+                sh "trivy image --format table -o trivy-image-report.html latchudevops/techgame"
+            }
+        }
+        stage('To Push the Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker push latchudevops/techgame:latest"
+                        
+                    }
+                }
+            }
+        }
+        }
+    }
+```
+
+Apply & save - to run the build
+
+<img width="899" alt="image" src="https://github.com/user-attachments/assets/7140d311-ab65-4234-af43-4ad7e960b91e" />
+
+Once pushed the image, you can check in Docker Hub registry
+
+<img width="907" alt="image" src="https://github.com/user-attachments/assets/11b71e83-c7d6-4c70-a239-ef52bc5c00c5" />
+
+
 
 
 
