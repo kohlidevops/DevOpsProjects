@@ -910,6 +910,44 @@ pipeline {
 After build the package stage, the jar file will be availablle in - /var/lib/jenkins/workspace/techgame/target/
 
 
+## To Upload the Artifacts to the Nexus Repository
 
+- To update the pom.xml in Source code
+
+To change your Nexus repository URL in Distribution management of pom.xml
+
+```
+https://github.com/kohlidevops/techgame/blob/main/pom.xml
+```
+
+<img width="710" alt="image" src="https://github.com/user-attachments/assets/2fec5f74-aa85-4052-8703-9660db20e287" />
+
+
+- To add a Maven Global Settings from the Managed files
+
+Jenkins > Managed Jenkins > Managed files > Add a new config > Global Maven settings.xml > ID - global-settings > Next
+
+```
+ID - global-settings
+Name - MyGlobalSettings
+Comment - Global settings
+Choose - Replace all
+Content >
+
+<server>
+      <id>maven-releases</id>
+      <username>admin</username>
+      <password>admin@23</password>
+    </server>
+    <server>
+      <id>maven-snapshots</id>
+      <username>admin</username>
+      <password>admin@23</password>
+    </server>
+
+submit
+```
+
+<img width="707" alt="image" src="https://github.com/user-attachments/assets/acc19707-43a0-452f-b308-e6a68ff5be14" />
 
 
