@@ -1647,3 +1647,268 @@ Now you can access the application using Worker node IP with Port numer
 
 <img width="933" alt="image" src="https://github.com/user-attachments/assets/301d424c-59af-4f34-a56f-c3f88e492c33" />
 
+
+## To Monitoring with Prometheus and Grafana
+
+- To download and install Prometheus
+
+SSH to Jenkins server
+
+Refer - https://prometheus.io/download/
+
+```
+mkdir monitoring
+cd monitoring
+wget https://github.com/prometheus/prometheus/releases/download/v2.53.3/prometheus-2.53.3.linux-amd64.tar.gz
+tar -xvzf prometheus-2.53.3.linux-amd64.tar.gz
+cd prometheus-2.53.3.linux-amd64/
+./prometheus &
+```
+
+You can access the Prometheus - IP:9090
+
+<img width="863" alt="image" src="https://github.com/user-attachments/assets/3a8a6576-28b9-41bb-b380-4f389349e7aa" />
+
+- To download and install Grafana
+
+Refer - https://grafana.com/grafana/download/11.1.3
+
+SSH to Jenkins server
+
+```
+cd monitoring
+sudo apt-get install -y adduser libfontconfig1 musl
+wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.1.3_amd64.deb
+sudo dpkg -i grafana-enterprise_11.1.3_amd64.deb
+### NOT starting on installation, please execute the following statements to configure grafana to start automatically using systemd
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable grafana-server
+### You can start grafana-server by executing
+sudo /bin/systemctl start grafana-server
+```
+
+You can access the Grafana - IP:3000
+
+<img width="746" alt="image" src="https://github.com/user-attachments/assets/5af313fa-dcc1-42c7-943d-40c82c3b38bf" />
+
+Default username and password - admin and to change the password
+
+
+- To download and install Blackbox Exporter
+
+Refer - https://prometheus.io/download/#blackbox_exporter
+
+SSH to Jenkins
+
+```
+cd monitoring
+wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+tar -xvzf blackbox_exporter-0.25.0.linux-amd64.tar.gz 
+cd blackbox_exporter-0.25.0.linux-amd64
+./blackbox_exporter &
+```
+
+You can access the Blackbox Exporter - IP:9115
+
+<img width="625" alt="image" src="https://github.com/user-attachments/assets/850cb95d-0408-49a6-a8e6-d7b3cf70ec04" />
+
+
+- To edit the Prometheus yaml and add the neccessary entry on it
+
+
+Refer - https://github.com/prometheus/blackbox_exporter
+
+Copy/Paste the below content from github to jenkins server - Prometheus yaml (end of file)
+
+```
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+        - http://prometheus.io    # Target to probe with http.
+        - https://prometheus.io   # Target to probe with https.
+        - http://example.com:8080 # Target to probe with http on port 8080.
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+```
+
+Do the neccessary changes and restart the Prometheus
+
+
+<img width="694" alt="image" src="https://github.com/user-attachments/assets/fb825492-37d1-459f-b917-9ddba4ab5e41" />
+
+
+- To restart Prometheus
+
+```
+pgrep prometheus
+kill 10659
+./prometheus &
+```
+
+- To access the Prometheus dashboard
+
+Prometheus > Status > Targets
+
+<img width="914" alt="image" src="https://github.com/user-attachments/assets/cf27b152-cb46-4c95-94bc-d99da403900a" />
+
+If you check with Blackbox exporter, then you can see the various probes
+
+<img width="518" alt="image" src="https://github.com/user-attachments/assets/55ff690a-72cb-4c6e-9d0b-87a2791e7ba3" />
+
+
+- To visulaize the application data using Grafana
+
+To login the Grafana Dashboard and choose the connections from Left side panel
+
+Connections > Data sources > Add Data source > Prometheus
+
+```
+Name - Prometheus
+Prometheus Server URL - http://15.207.100.247:9090
+Save and Test
+```
+
+Then Import the Dashboard
+
+![image](https://github.com/user-attachments/assets/6704c4bb-9c1d-490b-ac51-80c3c8d8ec15)
+
+Now have to give grafana dashboard ID
+
+you can find the ID - https://grafana.com/grafana/dashboards/7587-prometheus-blackbox-exporter/
+
+Copy ID to clipboard and Load the Dashboard > signcl-prometheus > choose > prometheus > Import
+
+After Import, you can see the visualization in Grafana
+
+<img width="934" alt="image" src="https://github.com/user-attachments/assets/7e9e14fc-a8d1-4215-854e-ff48be1fd993" />
+
+
+- To monitor the Server Metrics using Prometheus with Node Exporter
+
+Download and install the Node Exporter in Jenkins
+
+Install Prometheus plugins in Jenkins Dashboard
+
+Jenkins > Manage Jenkins > Plugins > Available > Prometheus Metrics > Install
+
+
+SSH to Jenkins Server
+
+```
+cd monitoring
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+tar -xvzf node_exporter-1.8.2.linux-amd64.tar.gz
+cd node_exporter-1.8.2.linux-amd64/
+./node_exporter &
+```
+
+To edit the Prometheus yaml file to add the server metrics
+
+```
+cd prometheus-2.53.3.linux-amd64
+sudo nano prometheus.yml
+
+//server metrics content
+
+ - job_name: 'node_exporter'
+   static_configs:
+     - targets: ['15.207.100.247:9100']   //node exporter which is in jenkins server
+ - job_name: 'jenkins'
+   metrics_path: '/prometheus'
+   static_configs:
+     - targets: ['15.207.100.247:8080']   //jenkins server
+```
+
+To restart the Prometheus
+
+```
+pgrep prometheus
+kill 11959
+./prometheus &
+```
+
+My Prometheus yaml looks like
+
+```
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['15.207.100.247:9100']
+  - job_name: 'jenkins'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['15.207.100.247:8080'] 
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+        - http://prometheus.io    # Target to probe with http.
+        - https://prometheus.io   # Target to probe with https.
+        - http://13.235.49.255:32718 # Target to probe with http on port 8080.
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 15.207.100.247:9115  # The blackbox exporter's real hostname:port.
+```
+
+After restarting prometheus, I can able to see the metrics in Prometheus dashboard
+
+<img width="921" alt="image" src="https://github.com/user-attachments/assets/9f287aad-4820-40d4-95a4-0a762f20ea20" />
+
+
+To visualize the metrics using Grafana1860
+
+First collect the ID from the node exporter with grafana - https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+
+Grafana Dashboard > New Dashboard > Import Dashboard > ID > Load > Choose > Promethues > Import
+
+Now you can able to see the Jenkins Server metrics as Grafana visualization
+
+<img width="932" alt="image" src="https://github.com/user-attachments/assets/2cf10b2e-0b83-4cb9-af45-217a23a9623d" />
+
+You can see the two dashboard from here - one is NodeExporter and another one is BlackboxExporter
+
+<img width="821" alt="image" src="https://github.com/user-attachments/assets/867cd97f-f621-475c-af02-290aab6d8df3" />
+
+
