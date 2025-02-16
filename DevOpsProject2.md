@@ -1367,9 +1367,283 @@ Once pushed the image, you can check in Docker Hub registry
 <img width="907" alt="image" src="https://github.com/user-attachments/assets/11b71e83-c7d6-4c70-a239-ef52bc5c00c5" />
 
 
+## To deploy the application to a Kubernetes Cluster Environment
 
 
+- To Create a namespace
+
+SSH to master node and create a new namespace named webapps
+
+```
+kubectl get ns
+kubectl create ns webapps
+kubectl get ns
+```
+
+- To Create a ServiceAccount
+
+```
+mkdir deploy
+cd deploy
+nano webapps-serviceaccount.yaml
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/webapps-serviceaccount.yaml
+
+kubectl get serviceaccount
+kubectl apply -f webapps-serviceaccount.yaml
+kubectl get serviceaccount -n webapps
+```
+
+<img width="674" alt="image" src="https://github.com/user-attachments/assets/da23eba9-03d4-43c1-9a45-58cc289d5ea3" />
 
 
+- To Create a Role
 
+To create Role and this role should be created within webapps namespace
+
+```
+cd deploy
+nano webapps-role.yaml
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/webapps-role.yaml
+
+kubectl apply -f webapps-role.yaml
+kubectl get role -n webapps
+```
+
+<img width="602" alt="image" src="https://github.com/user-attachments/assets/8decc00b-9a5f-4eef-a1a8-50c24395892a" />
+
+
+- To Create a RoleBinding to apply a Role
+
+```
+cd deploy
+nano webapps-rolebinding.yaml
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/webapps-rolebinding.yaml
+
+kubectl apply webapps-rolebinding.yaml
+kubectl get RoleBinding -n webapps
+```
+
+<img width="656" alt="image" src="https://github.com/user-attachments/assets/609ca807-cd8b-4f56-a73c-57ecdbc0fa02" />
+
+- To Create a Secret to access the cluster from jenkins
+
+```
+cd deploy
+nano webapps-secret.yaml
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/webapps-secret.yaml
+
+kubectl apply -f webapps-secret.yaml
+kubectl get secrets -n webapps
+```
+
+- To get or describe the secret
+
+To get the secret and assign this secret to Jenkins server to grant access the Kubernetes Cluster
+
+```
+kubectl get secrets -n webapps
+kubectl describe secret mysecretname -n webapps
+```
+
+<img width="943" alt="image" src="https://github.com/user-attachments/assets/1dc9c0a5-a6ee-4425-aa48-44d336ac3cf4" />
+
+
+- To create a credentials for kubernetes token
+
+Jenkins > Manage Jenkins > Credentials > System > Global > Add new
+
+```
+Kind - Secret text
+Secret - //k8s-token
+ID - secret
+Create
+```
+
+<img width="913" alt="image" src="https://github.com/user-attachments/assets/2fb53b6b-7f9c-4293-af0a-55881aae3e14" />
+
+
+- To get the kuberenets service endpoint
+
+SSH to master node
+
+```
+cat ~/.kube/config
+//You can collect from here
+```
+
+<img width="616" alt="image" src="https://github.com/user-attachments/assets/6cb6e8e8-81df-4a31-8f38-bad348b0a3e0" />
+
+
+- To add a Kubernetes Deployment stage in Jenkins
+
+Refer Pipeline syntax to complete this stage
+
+```
+Sample step - withKubeConfig: Configure Kubernetes CLI (kubectl)
+Credentials - k8s-cred
+Kubernetes server endpoint - https://172.31.10.77:6443
+Cluster name - Kubernets
+Namespace - webapps
+```
+
+Generate Pipeline script
+
+```
+withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8s-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.10.77:6443') {
+    // some block
+}
+```
+
+- To create a deployment and service manifiest in Source code repo
+
+```
+https://github.com/kohlidevops/DevOpsProjects/blob/main/webapps-deployment-service.yaml
+```
+
+After you adding the deployment stage
+
+```
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Checkout the Project from the GitHub to Jenkins Server') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/kohlidevops/techgame.git'
+            }
+        }
+        stage('Compile the Source Code') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+        stage('Unit Test cases on Source Code') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Vulnerability Scan using Trivy') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=techgame -Dsonar.projectKey=techgame \
+                -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('Wait For Quality Gate Status') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Build the Package') {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage('Publish the Artifacts to the Nexus Repository') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        stage('To Build and Tag the Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker build -t latchudevops/techgame:latest ."
+                        
+                    }
+                }
+            }
+        }
+        stage('Docker Image Scanning using Trivy') {
+            steps {
+                sh "trivy image --format table -o trivy-image-report.html latchudevops/techgame"
+            }
+        }
+        stage('To Push the Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dock-cred', toolName: 'docker') {
+                        sh "docker push latchudevops/techgame:latest"
+                        
+                    }
+                }
+            }
+        }
+        stage('Deploy the Docker Image to the Kubernetes Cluster') {
+            steps {
+            withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8s-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.10.77:6443') {
+                sh "kubectl apply -f deployment-service.yaml"
+                }
+            }
+        }
+        stage('To Verify the Deployment and Service') {
+            steps {
+            withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8s-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.10.77:6443') {
+                sh "kubectl get pods -o wide -n webapps"
+                sh "kubectl get svc -n webapps"
+                }
+            }
+        }
+    }
+}
+```
+
+- To Install kubectl, kubelet and kubeadm in Jenkins Server
+
+SSH to Jenkins and execute below script
+
+```
+nano k8s-install.sh
+
+https://github.com/kohlidevops/DevOpsProjects/blob/main/k8s-install.sh
+
+sudo chmod +x k8s-install.sh
+sudo sh k8s-install.sh
+```
+
+
+- To build the Jenkins
+
+To start the build and check the console output and status of the pods in K8 master
+
+
+<img width="953" alt="image" src="https://github.com/user-attachments/assets/4c88e2a9-6e92-49a0-8b6e-8b3402c87786" />
+
+
+<img width="895" alt="image" src="https://github.com/user-attachments/assets/1d1cf6e7-e4ad-47b3-ac9c-cca4091b17ca" />
+
+
+If you are facing any issues with "Failed to setup network" - It can be weave network plugins issues. You can check the pods
+
+```
+kubectl get pods -n kube-system -o wide | grep weave
+kubectl rollout restart ds weave-net -n kube-system
+kubectl get pods -n kube-system -o wide | grep weave
+```
+
+Now you can access the application using Worker node IP with Port numer
+
+
+<img width="933" alt="image" src="https://github.com/user-attachments/assets/301d424c-59af-4f34-a56f-c3f88e492c33" />
 
