@@ -140,5 +140,28 @@ Save
 ![image](https://github.com/user-attachments/assets/c1c5aa8b-4ecb-4791-bef3-0917134e9c2e)
 
 
+## To add the git credentail in Jenkins
 
+Jenkins > Manage Jenkins > Credentials > System > Global > New > SSH Username with Private key
+
+```
+ID - gitlogin
+Username - git
+Private key - //Copy paste your git private key which is created using ssh-keygen
+Then create
+```
+
+## To Create a new project in Jenkins
+
+Jenkins > Add new item > Pipeline
+
+```
+Definition - Pipeline script from SCAM
+SCM - Git
+Repositories - git@github.com:kohlidevops/vprofile-project.git
+Credentials - Add your git
+Branch Specifier  - */ci-jenkins
+Script Path - Jenkinsfile
+Apply & save
+```
 
