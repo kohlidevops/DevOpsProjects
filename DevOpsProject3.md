@@ -68,3 +68,77 @@ Default username is admin and password is admin
 ![image](https://github.com/user-attachments/assets/d636b9a1-e883-4570-900a-fc880f35c223)
 
 
+## Git setup in Local
+
+Local machine > Gitbash
+
+```
+git config --global user.email "YOUR Email Address"
+git config --global user.name "YOUR Username"
+cd
+cd ~/.ssh
+ls
+ssh-keygen  //Enter your GitHub account name
+ls
+cat PublicKey.pub //To store this in Github > Settings > SSH and GPG keys > Add SSH key > Authentication key > Place the public key > save
+# Create ssh config file for GitHub account
+vim ~/.ssh/config
+Host github.com-kohlidevops
+  User git
+  IdentityFile ~/.ssh/kohlidevops
+  HostName github.com
+
+# Clone source code
+cd
+mkdir PathToCloneRepo
+cd PathToCloneRepo
+git clone git@github.com-kohlidevops:kohlidevops/vprofile-project.git
+git checkout ci-jenkins
+
+#Do some change and commit to check
+vim README.md
+git add .
+git commit -m "first commit"
+git push origin ci-jenkins
+```
+
+## To configure tools & credentials
+
+Jenkins > Manage Jenkins > Tools > Add JDK
+
+```
+Name - JDK17
+JAVA_HOME - /usr/lib/jvm/java-1.17.0-openjdk-amd64
+
+#Add one more JDK
+#You can install in Jenkins server - apt-get install openjdk-21-jdk -y
+#ls -lh /usr/lib/jvm/
+
+Name - JDK21
+JAVA_HOME - java-1.21.0-openjdk-amd64
+```
+
+Jenkins > Manage Jenkins > Tools > Add Maven
+
+```
+Name - MAVEN3.9
+Version - 3.9.9
+Apply & Save
+```
+
+## To add the Nexus credentials in Jenkins
+
+Jenkins > Manage Jenkins > Credentials > System > Global > New > Username and Password
+
+```
+Username - admin
+Password - ******
+ID - nexuslogin
+Save
+```
+
+![image](https://github.com/user-attachments/assets/c1c5aa8b-4ecb-4791-bef3-0917134e9c2e)
+
+
+
+
