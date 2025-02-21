@@ -203,3 +203,107 @@ pipeline {
 	}
 }
 ```
+
+## To add the Jenkins Webhook, Archive, Test and Checkstyle analysis
+
+Github > Your Project > Settings > Webhook > Add Webhook
+
+```
+Payload URL - http://13.201.75.108:8080/github-webhook/     //Jenkins IP
+Content type - application/json
+Event - Just the push event
+```
+
+Jenkins > Project > configure > Triggers > GitHub hook trigger for GITScm polling > Apply & Save
+
+
+Github > Jenkinsfile
+
+```
+pipeline {
+	agent any
+	tools {
+		jdk "OracleJDK8"
+                maven "MAVEN3.9"
+		}
+	environment {
+		SNAP_REPO = 'devops-snapshots'
+                NEXUS_USER = 'admin'
+                NEXUS_PASS = 'admin'
+                RELEASE_REPO = 'devops-release'
+                CENTRAL_REPO = 'devops-central'
+                NEXUSIP = '172.31.1.225'
+                NEXUSPORT = '8081'
+                NEXUS_GRP_REPO = 'devops-group'
+                NEXUS_LOGIN = 'nexuslogin'
+		}
+	stages{
+		stage('BUILD'){
+			steps {
+				sh 'mvn -s settings.xml -DskipTests install'
+				}
+			post {
+				success {
+					echo "Archiving"
+					archiveArtifacts artifacts: '**/*.war'
+						}
+					}
+				}
+		stage('Test') {
+			steps {
+				sh 'mvn -s settings.xml test'
+			}
+		}
+		stage('Checkstyle Analysis') {
+			steps {
+				sh 'mvn -s settings.xml checkstyle:checkstyle'
+			}
+		}
+	}
+}
+```
+
+Once you commited, the build has been triggered automatically.
+
+
+## To Code Analysis with Sonarqube
+
+To generate the token in Sonarqube server
+
+Sonarqube dashboard > Login > Administration > Security > Users > Adminstrator > Generate token > name it as jenkins > generate
+
+To add the sonarwube credential in Jenkins 
+
+Jenkins dashboard > Manage Jenkins > Credentials > System > Global > Add new
+
+```
+Kind - Secret text
+Secret - <your-token>
+ID - sonartoken
+create
+```
+
+To add the sonar server in Jenkins tools
+
+Jenkins > System > SonarQube installations > Add Sonarqube 
+
+```
+Name - sonarserver
+Server URL - http://172.31.6.160
+Server authentication token - sonartoken
+apply & save
+```
+
+To add the sonar scanner in tools
+
+Jenkins > Tools > SonarQube Scanner installations > Add SonaQube Scanner
+
+```
+Name - sonarscanner
+Choose - Install Automatically
+Choose - Install from Maven central
+Version - SonarQube Scanner 4.7.0.2747
+Apply & save
+````
+
+
