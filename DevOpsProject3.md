@@ -165,3 +165,41 @@ Script Path - Jenkinsfile
 Apply & save
 ```
 
+SSH to Jenkins server to hostkey verification
+
+```
+sudo -i
+su - jenkins
+ssh -T git@github.com
+cat .ssh/known_hosts
+```
+
+To add the Jenkinsfile in Github repo with ci-jenkins branch
+
+```
+pipeline {
+	agent any
+	tools {
+		jdk "JDK17"
+    maven "MAVEN3.9"
+		}
+	environment {
+		            SNAP_REPO = 'devops-snapshots'
+                NEXUS_USER = 'admin'
+                NEXUS_PASS = 'admin'
+                RELEASE_REPO = 'devops-release'
+                CENTRAL_REPO = 'devops-central'
+                NEXUSIP = '172.31.1.225'
+                NEXUSPORT = '8081'
+                NEXUS_GRP_REPO = 'devops-group'
+                NEXUS_LOGIN = 'nexuslogin'
+		}
+	stages{
+		stage('BUILD'){
+			steps {
+				sh 'mvn -s settings.xml -DskipTests install'
+				}
+		}
+	}
+}
+```
