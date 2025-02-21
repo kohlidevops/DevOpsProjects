@@ -107,7 +107,7 @@ git push origin ci-jenkins
 Jenkins > Manage Jenkins > Tools > Add JDK
 
 ```
-Name - JDK17
+Name - OracleJDK11
 JAVA_HOME - /usr/lib/jvm/java-1.17.0-openjdk-amd64
 
 #Add one more JDK
@@ -180,11 +180,11 @@ To add the Jenkinsfile in Github repo with ci-jenkins branch
 pipeline {
 	agent any
 	tools {
-		jdk "JDK17"
-    maven "MAVEN3.9"
+		jdk "OracleJDK11"
+                maven "MAVEN3.9"
 		}
 	environment {
-		            SNAP_REPO = 'devops-snapshots'
+		SNAP_REPO = 'devops-snapshots'
                 NEXUS_USER = 'admin'
                 NEXUS_PASS = 'admin'
                 RELEASE_REPO = 'devops-release'
