@@ -160,7 +160,7 @@ Definition - Pipeline script from SCAM
 SCM - Git
 Repositories - git@github.com:kohlidevops/vprofile-project.git
 Credentials - Add your git
-Branch Specifier  - */ci-jenkins
+Branch Specifier  - ci-jenkins
 Script Path - Jenkinsfile
 Apply & save
 ```
