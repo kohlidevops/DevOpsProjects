@@ -333,7 +333,119 @@ My build has been succeeded
 ![image](https://github.com/user-attachments/assets/e8a45b5e-77a0-4be6-822d-3562541a9c97)
 
 
-9. To Setup a Code Pipeline
+9. To Create a S3 Bucket
+
+Create a S3 bucket and named it - vpro-build-artifacts
+
+To create a folder called pipeline-artifacts
+
+![image](https://github.com/user-attachments/assets/a43ff343-4a93-449d-96c0-3f578ba8e049)
+
+
+10. To create a SNS
+
+To create a SNS Topic and subscribe with Email
+
+![image](https://github.com/user-attachments/assets/8dc1f53e-b049-41b9-81d9-eff93798d2cb)
+
+
+11. To Create a Code Pipeline
+
+AWS > Code Pipeline > Build with Custom Pipeline
+
+![image](https://github.com/user-attachments/assets/3f120198-19f2-49dd-9816-f7a84b59c6be)
+
+
+```
+Pipeline name - vpro-ci-pipeline
+Execution mode - Queued
+Service role > New Service Role > AWSCodePipelineServiceRole-ap-south-1-vpro-ci-pipeline
+Source provider - Bitbucket > Connect to Bitbucket (Create a new connection with new app)
+Repository name - latchudevops/vprofile-project
+Default branch - ci-aws
+Add build stage > Build Provider > Other Build Provider > AWS Code Build
+Project name - vprofile-build-artifacts
+Build type - single
+Input artifacts - SourceArtifact
+Skip - Test stage and deploy stage > Then create a Pipeline
+```
+
+The Pipeline will execute automatically once it is created - So you can stop it as of now
+
+12. To add the CodeAnalysis stage
+
+Choose > Pipeline > Edit > Add the stage after Code Commit stage > Name it - CodeAnalysis > Add Action group 
+
+```
+Action name - SonarCodeAnalysis
+Action provider - AWS CodeBuild
+Region - Mumbai
+Input artifacts - SourceArtifact
+Project name - vpro-code-analysis
+Build type - Single
+Done
+```
+
+
+![image](https://github.com/user-attachments/assets/7b13ee27-3980-4cdc-98c4-2cb776f4d786)
+
+
+13. To add the Deploy stage
+
+To add one more stage after Build stage > name it > Deploy > Add action group > DeployToS3Bucket
+
+```
+Action name - DeployToS3Bucket
+Action provider - Amazon S3
+Region - Mumbai
+Input artifacts - BuildArtifact
+Bucket - latchu-build-artifacts
+Deployment path - pipeline-artifacts  #folder-name
+Choose > Extract file before deploy
+Done
+```
+
+Finally Save the Code Pipeline
+
+
+14. To Setup a Notification
+
+Choose your Pipeline > Settings > Notification > Create a Notification rule
+
+```
+Notification name - vpro-notification
+Detail type - Full
+Events that trigger notifications - Select All
+Targets > SNS Topic - choose your topic
+Submit
+```
+
+![image](https://github.com/user-attachments/assets/469fe2db-267b-4e13-83f1-65e14e32969e)
+
+
+15. To trigger the Pipeline manually
+
+Choose your Pipeline > Release change > to trigger manually
+
+My CI Pipeline has been succeeded
+
+
+![image](https://github.com/user-attachments/assets/9753d62d-434a-40f3-ab4e-192cbfb191b8)
+
+
+The buil artifacts (war file) to deploy on S3 bucket
+
+
+
+![image](https://github.com/user-attachments/assets/41ec556b-569e-4810-8464-6922af6072b6)
+
+
+
+Try to do some changes in Bitbucket repo and check the Pipeline whether it is trigerred automatically or not
+
+
+![image](https://github.com/user-attachments/assets/eeab9edb-bf8f-4ab4-8485-f7ffd47bae22)
+
 
 
 
