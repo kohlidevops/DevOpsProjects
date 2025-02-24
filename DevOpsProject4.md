@@ -561,3 +561,79 @@ Edit > sonar_buildspec.yml > To add the export authorization token (which is cop
 Edit > build_buildspec.yml > To add the export authorization token (which is copied from maven central store instruction in aws code artifact) and comment "#CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN"
 
 Edit > buildAndRelease_buildspec.yml > To add the export authorization token (which is copied from maven central store instruction in aws code artifact) and comment "#CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN"
+
+22. To update the branch in Code Build Projects
+
+To update the Source version as cd-aws in both vpro-code-analysis and vprofile-build-artifacts
+
+![image](https://github.com/user-attachments/assets/9523b448-7701-41bd-8dbd-d3b0f28a4f5f)
+
+
+23. To update the buildspec yaml to vpro-code-analysis build
+
+Edit > vpro-code-analysis > Buildspec > Buildspec name - aws-files/sonar_buildspec.yml > save
+
+![image](https://github.com/user-attachments/assets/d9b24788-b2f9-4163-9f56-e802ea7673ae)
+
+
+24. To create a Parameter store for RDS
+
+AWS > SSM > Parameter Store > Add
+
+```
+RDS-Endpoint - <endpoint>
+RDSUSER - admin
+RDSPASS - *****
+```
+
+![image](https://github.com/user-attachments/assets/ff23c25b-b07c-413e-826f-f53ebfbdc6b7)
+
+
+25. To create a CodeBuild for Build and Release
+
+AWS > CodeBuild > Create a new project
+
+```
+Project name - vpro-BuildAndRelease
+Project type - Default
+Source provider - Bitbucket
+Repository > Repository in my Bitbucket account > choose your repo
+Source version - cd-aws
+Operating system - Ubuntu
+Service role - Existing service role (codebuild-vpro-code-analysis-service-role)
+Buildspec > use a buildspec file - aws-files/buildAndRelease_buildspec.yml
+Cloudwatch logs - enable (if need)
+Create build project
+```
+
+To start the build and know the status
+
+![image](https://github.com/user-attachments/assets/ef7a4a1b-95ff-4fb5-9122-271ecb35a2f2)
+
+
+26. To create a CodeBuild for Selenium Test
+
+AWS > CodeBuild > Create a new project
+
+```
+Project name - SoftwareTesting
+Project type - Default
+Source provider - Bitbucket
+Repository > Repository in my Bitbucket account > choose your repo
+Source version - seleniumAutoScripts
+Operating system - Windows Server 2019
+Runtime - Base
+Image windows-base:2019-3.0
+Service role - Existing service role (codebuild-vpro-code-analysis-service-role)
+Buildspec > Insert build commands - Editor
+//Copy paste the below content and update the beanstalk URL
+//https://github.com/kohlidevops/DevOpsProjects/blob/main/win_buildspec.yml
+Artifacts > Primary > S3
+Bucket name - latchu-build-artifacts
+Name - Testcases //folder - Create if not available
+Cloudwatch logs - enable (if need)
+Create build project
+```
+
+
+
