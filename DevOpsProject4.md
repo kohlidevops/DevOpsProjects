@@ -447,6 +447,117 @@ Try to do some changes in Bitbucket repo and check the Pipeline whether it is tr
 ![image](https://github.com/user-attachments/assets/eeab9edb-bf8f-4ab4-8485-f7ffd47bae22)
 
 
+16. To Create an IAM Role for Elastic Beanstalk EC2 Instance Profile
+
+IAM Role > Create new Role > Trusted entity type > AWS Service > Use case > EC2
+
+
+![image](https://github.com/user-attachments/assets/b06e77e3-da8e-42f9-9f16-5d07608a2988)
+
+
+17. To create an Elastic Beanstalk with Webserver Environment
+
+AWS > Elastic Beanstalk
+
+
+```
+Environment tier - Web Server environment
+Application name - vpro
+Platform type - Managed Platform
+Platform - Tomcat
+Platform branch - Tomcat 10 with Corretto 21 running on 64 bit Amazon Linux 2023
+Platform version - 5.4.3
+Applicatio code - Sample application
+Presets - custom configuration
+Service role - Create and use new service role
+EC2 key pair - your key pair
+EC2 instance profile - Select your EC2 instance profile role
+VPC and subnets - Select your own
+Public IP address - Activated
+//Leave the database subnets
+Root volume - default
+EC2 security group - your SG
+Auto scaling group > Environment - Loadbalanced
+Min - 2 and max - 4
+Instance type - t3.micro
+AMI ID - default
+Loadbalancer subnets - All
+Loadbalancer type - Application Loadbalancer with Dedicated
+Processes > Default > Edit > Sessions > Enable - Session stickiness > save
+Deployment policy - Rolling
+Deployment bacth size - 50
+Review and Create an Elastic Beanstalk
+```
+
+![image](https://github.com/user-attachments/assets/5e21790f-c2f4-47e8-93b9-07c4fddd72c7)
 
 
 
+18. To Setup MYSQL RDS Instance
+
+AWS > RDS > Create a new RDS
+
+```
+Engine option - MySQL
+Engine version - MySQL 8.0.35
+Template - Free tier
+DB instance identifier - vpro-rds
+Master username - admin
+Credential management - Self managed
+Master password - *****
+Instance family - db.t4g.micro
+Storage > GP3 > 20 GB
+VPC - Select your own
+Security gorup - RDS-SG
+Initial database name - accounts
+Create database
+```
+
+![image](https://github.com/user-attachments/assets/91026051-c07c-45b5-98c1-5b40a28224a2)
+
+
+19. To Import the DB to MYSQL RDS
+
+SSH to any one of the EC2 instance and execute below things
+```
+sudo -i
+dnf install mariadb105 -y
+//To download db file
+wget https://raw.githubusercontent.com/kohlidevops/vprofile-project/refs/heads/cd-aws/src/main/resources/db_backup.sql
+mysql -h <endpoint> -u username -p <db-name> < db_backup.sql
+//enter your password
+mysql -h <endpoint> -u username -p <db-name>
+//enter your password
+show tables;
+exit
+```
+
+![image](https://github.com/user-attachments/assets/3f4f7718-83b2-4caa-9731-f83e4b502780)
+
+
+20. To update the code with POM and settings XML files
+
+AWS > CodeArtifact - To copy the Artifact URL from maven-central-store - view connection string
+
+Bitbucket > branch > cd-aws > Edit > pom.xml and update the URL
+
+![image](https://github.com/user-attachments/assets/d2aa721e-d262-4e50-af6d-7f47cdc328e1)
+
+
+Bitbucket > branch > cd-aws > Edit > settings.xml and update the URL
+
+![image](https://github.com/user-attachments/assets/8928eec8-bc45-46e4-926c-ef98189906bd)
+
+
+21. To update all build spec yaml files
+
+Bitbucket > your project > branch > cd-aws > choose > aws-files
+
+Edit > sonar_buildspec.yml > To add the export authorization token (which is copied from maven central store instruction in aws code artifact) and comment "#CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN"
+
+![image](https://github.com/user-attachments/assets/2bd01572-f410-4dc0-9aed-0d6ac26609d4)
+
+
+Edit > build_buildspec.yml > To add the export authorization token (which is copied from maven central store instruction in aws code artifact) and comment "#CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN"
+
+Edit > buildAndRelease_buildspec.yml > To add the export authorization token (which is copied from maven central store instruction in aws code artifact) and comment "#CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN"
