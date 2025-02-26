@@ -447,6 +447,13 @@ Try to do some changes in Bitbucket repo and check the Pipeline whether it is tr
 ![image](https://github.com/user-attachments/assets/eeab9edb-bf8f-4ab4-8485-f7ffd47bae22)
 
 
+This is the CI stages
+
+
+![image](https://github.com/user-attachments/assets/aab45b4e-1bfd-4dad-af38-bc8f65d99c39)
+
+
+
 16. To Create an IAM Role for Elastic Beanstalk EC2 Instance Profile
 
 IAM Role > Create new Role > Trusted entity type > AWS Service > Use case > EC2
