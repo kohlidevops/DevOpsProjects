@@ -637,9 +637,11 @@ Service role - Existing service role (codebuild-vpro-code-analysis-service-role)
 Buildspec > Insert build commands - Editor
 //Copy paste the below content and update the beanstalk URL
 //https://github.com/kohlidevops/DevOpsProjects/blob/main/win_buildspec.yml
+//update the Beanstalk domain URL in win_buildpsec.yml
 Artifacts > Primary > S3
 Bucket name - latchu-build-artifacts
-Name - Testcases //folder - Create if not available
+Select > Enable semantic versioning
+Artifacts packaging - zip
 Cloudwatch logs - enable (if need)
 Create build project
 ```
