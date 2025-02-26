@@ -643,8 +643,157 @@ Bucket name - latchu-build-artifacts
 Select > Enable semantic versioning
 Artifacts packaging - zip
 Cloudwatch logs - enable (if need)
-Create build project
+Create build project (Dont need to start the build)
 ```
 
+
+
+
+27. To create a CICD CodePipeline
+
+AWS > CodePipeline > Create a new Pipeline
+
+```
+Pipeline name - vpro-cicd-pipeline
+Service Role > New - NV-AWSCodePipelineServiceRole-us-east-1-vpro-cicd-pipeline
+Source provider - Bitbucket
+Connection - choose your connection
+Repository name - latchudevops/vprofile-project
+Default branch - cd-aws
+Output artifact format - CodePipeline default
+Webhook events - Enable
+Build provider - AWS CodeBuild
+Project name- vpro-BuildAndRelease
+Build type - Single build
+Region - NV
+Input artifacts - SourceArtifact
+Select - Enable automatic retry on stage failure
+Skip - Test stage
+Deploy provider - Elastic Beanstalk
+Region - NV
+Input artifacts - BuildArtifact
+Application name - vpro
+Environment name - Vpro-env
+Review and create (Stop the auto execution as of now)
+```
+
+
+![image](https://github.com/user-attachments/assets/58bb92b1-1a90-4f39-bbf4-5bae68946bca)
+
+
+28. To add the Code Analysis Stage
+
+Select your CICD CodePipeline > Edit > Add stage before Build stage
+
+```
+Add Stage - CodeAnalysis > save
+Choose > Add action group
+Action name - CodeAnalysis
+Action provider - CodeBuild (Deploy)
+Region - NV
+Input artifacts - SourceArtifact
+Project name - vpro-code-analysis
+Done > Done
+```
+
+![image](https://github.com/user-attachments/assets/551baa14-e9fe-48a8-bb8f-c6931466da61)
+
+
+29. To add the BuildAndStore Stage
+
+Select your CICD CodePipeline > Edit > Add stage after CodeAnalysis stage
+
+
+```
+Add stage - BuildAndStoreStage > save
+Choose > Add action group
+Action name - BuildAndStore
+Action provider - AWS CodeBuild (Deploy)
+Region - NV
+Input artifacts - SourceArtifact
+Project name - vpro-code-analysis
+Output artifacts - CICodeBuildArtifacts
+Done > Done
+```
+
+![image](https://github.com/user-attachments/assets/d6edcacd-4be6-4438-b057-69efdc1cc18c)
+
+
+30. To add the DeployToS3 stage
+
+Select your CICD CodePipeline > Edit > Add stage after BuildAndStoreStage
+
+```
+Add stage - DeployToS3Stage > save
+Choose > Add action group
+Action name - DeployToS3Stage
+Action provider - S3 (Deploy)
+Region - NV
+Input artifacts - CICodeBuildArtifacts (Defined by BuildAndStore)
+Bucket - nv-pro-build-artifacts
+Choose - Extract file before deploy
+Done > Done
+```
+
+31. To update the output artifacts name in Build Stage
+
+To edit the Build stage after DeployToS3 stage
+
+Edit > Action group
+
+```
+Output artifacts - BuildArtifactToBeanstalk  (BuildArtifact to BuildArtifactToBeanstalk)
+Done > Done
+```
+
+32. To update input artifacts name in Deploy Stage
+
+To edit the Deploy stage after DeployToS3 > Build Stage > Deploy stage
+
+Edit > Action group > new Action
+
+```
+Action name - DeployToBeanstalk
+Action provider - AWS Elastic Beanstalk
+Region - NV
+Input artifacts - BuildArtifactToBeanstalk
+Application name - vpro
+Environment name - Vpro-env
+Variable namespace - DeployVariables
+Done > Done
+```
+
+and remove old action group if you cant update it
+
+
+32. To add the SoftwareTestingStage
+
+To add the SoftwareTestingStage after Deploy Stage
+
+Deploy > Add Stage > SoftwareTestingStage
+
+Edit Action group > Add new
+
+```
+Action name - SoftwareTestingStage
+Action provider - AWS CodeBuild
+Region - NV
+Input artifact - SourceArtifact
+Project name - vpro-SoftwareTesting
+Done > Done
+```
+
+33. To create a notification rule for this CICD Pipeline
+
+Pipeline > Choose your Pipeline > Settings > Create notifcation rule
+
+```
+Notification name - CICD-Pipeline-Notification-System
+Detail type - full
+Events that trigger notifications - Select all
+Targets > SNS - choose your SNS > Submit
+```
+
+![image](https://github.com/user-attachments/assets/1bf391d2-f305-41f3-be86-c2bdcb143fc9)
 
 
