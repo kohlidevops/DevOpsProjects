@@ -453,6 +453,8 @@ This is the CI stages
 ![image](https://github.com/user-attachments/assets/aab45b4e-1bfd-4dad-af38-bc8f65d99c39)
 
 
+**To delete the CI Pipeline and we will create new Pipeline with CICD process**
+
 
 16. To Create an IAM Role for Elastic Beanstalk EC2 Instance Profile
 
