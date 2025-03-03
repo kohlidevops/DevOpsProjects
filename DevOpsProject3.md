@@ -16,6 +16,9 @@ https://github.com/kohlidevops/DevOpsProjects/blob/main/Nexus-Setup.sh
 
 Launch Ubuntu22 EC2 instance with t3.medium and execute the below script to install SonarQube
 
+```
+https://github.com/kohlidevops/DevOpsProjects/blob/main/SonarQube-Setup.sh
+```
 
 ## Configure Jenkins
 
