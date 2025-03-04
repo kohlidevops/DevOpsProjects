@@ -624,3 +624,15 @@ pipeline {
 }
 ```
 
+To start the build and check the Nexus repository whether the artifacts has been stored with Timestamp
+
+
+![image](https://github.com/user-attachments/assets/0ce60d78-6962-40d0-b3d7-938ba37eed55)
+
+
+My build has been succeeded as well the artifacts stored in Nexus repository.
+
+
+![image](https://github.com/user-attachments/assets/e3e8a911-000e-4ef7-9ee5-51d5914b8486)
+
+
