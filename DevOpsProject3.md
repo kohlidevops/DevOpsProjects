@@ -691,10 +691,24 @@ Workspace - vprofilecicd-j1a6033  //you can get this URL from yur workspace - co
 Credential - slacktoken
 Default channel - #jenkinscicd
 Test connect > Success
+Apply & Save
 ```
 
 
 ![image](https://github.com/user-attachments/assets/d31fdee0-47cd-4021-b07f-53595748ab82)
+
+
+
+To Start the build and check the status in Slack Channel - Build has been succeeded
+
+![image](https://github.com/user-attachments/assets/5ea109a5-4d97-48fc-86f1-ecbaebff760d)
+
+
+If you check with Slack channel
+
+
+![image](https://github.com/user-attachments/assets/add5517c-1ada-4281-8552-59d614beccad)
+
 
 
 
