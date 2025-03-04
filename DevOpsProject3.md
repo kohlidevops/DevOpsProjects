@@ -687,11 +687,14 @@ To configure the slack in Jenkins
 Jenkins > System > Slack
 
 ```
-Workspace - vprofilecicd
+Workspace - vprofilecicd-j1a6033  //you can get this URL from yur workspace - copy/paste in Jenkins except .slack.com
 Credential - slacktoken
 Default channel - #jenkinscicd
 Test connect > Success
 ```
+
+
+![image](https://github.com/user-attachments/assets/d31fdee0-47cd-4021-b07f-53595748ab82)
 
 
 
