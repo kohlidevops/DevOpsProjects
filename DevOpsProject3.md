@@ -636,3 +636,64 @@ My build has been succeeded as well the artifacts stored in Nexus repository.
 ![image](https://github.com/user-attachments/assets/e3e8a911-000e-4ef7-9ee5-51d5914b8486)
 
 
+
+## To add a Slack Notification Stage
+
+First to create a new workspace using below link
+
+https://slack.com/get-started#/landing
+
+```
+Workspace - vprofilecicd
+Mail - add your mail
+Project - devopscicd
+Start with the limited free edition
+```
+
+![image](https://github.com/user-attachments/assets/4af606c4-09f4-43f1-9c43-c68e2b3aa776)
+
+
+To create a new channel named "jenkinscicd"
+
+Slack dashboard > Add channel > To create a new channel > name > jenkinscicd > Create
+
+
+![image](https://github.com/user-attachments/assets/c759778a-ab10-4459-bbca-6aae25e669ad)
+
+
+To add apps to the Slack - Search : Slack Market Place - Apps and Integration
+
+Find - jenkinsci > Add to Slack > Choose your channel > jenkinscicd > Add Jenkins CI integration
+
+To copy the integration token credential id in somewhere for now > Save settings
+
+```
+token id - pOGohpp3Wm0GK8i9Petp2vXL
+```
+
+To Create a credential in jenkins dashboard
+
+Jenkins Dashboard > Credential > System > Global Credential > Kind > Secret text
+
+
+```
+Secret - token
+ID - slacktoken
+Create
+```
+
+To configure the slack in Jenkins
+
+Jenkins > System > Slack
+
+```
+Workspace - vprofilecicd
+Credential - slacktoken
+Default channel - #jenkinscicd
+Test connect > Success
+```
+
+
+
+
+
