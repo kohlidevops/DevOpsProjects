@@ -309,4 +309,208 @@ Version - SonarQube Scanner 4.7.0.2747
 Apply & save
 ````
 
+Github > Jenkinsfile
+
+```
+pipeline {
+	agent any
+	tools {
+		jdk "OracleJDK8"
+                maven "MAVEN3.9"
+		}
+	environment {
+		SNAP_REPO = 'devops-snapshots'
+                NEXUS_USER = 'admin'
+                NEXUS_PASS = 'admin@23'
+                RELEASE_REPO = 'devops-release'
+                CENTRAL_REPO = 'devops-central'
+                NEXUSIP = '172.31.9.243'
+                NEXUSPORT = '8081'
+                NEXUS_GRP_REPO = 'devops-group'
+                NEXUS_LOGIN = 'nexuslogin'
+		SONARSERVER = 'sonarserver'
+        	SONARSCANNER = 'sonarscanner'
+		}
+	stages{
+		stage('BUILD'){
+			steps {
+				sh 'mvn -s settings.xml -DskipTests install'
+				}
+			post {
+				success {
+					echo "Archiving"
+					archiveArtifacts artifacts: '**/*.war'
+						}
+					}
+				}
+		stage('Test') {
+			steps {
+				sh 'mvn -s settings.xml test'
+			}
+		}
+		stage('Checkstyle Analysis') {
+			steps {
+				sh 'mvn -s settings.xml checkstyle:checkstyle'
+			}
+		}
+		stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool "${SONARSCANNER}"
+            }
+            steps {
+               withSonarQubeEnv("${SONARSERVER}") {
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+              }
+            }
+        }
+		
+	}
+}
+```
+
+Trigger the build and see the result - The build has been succeeded 
+
+
+![image](https://github.com/user-attachments/assets/4c615bb2-7e88-4fae-95f3-9f4cddeca70d)
+
+
+If you check with SonarQube dashboard
+
+![image](https://github.com/user-attachments/assets/ed72513c-3680-41af-adf6-ff5b995d3751)
+
+
+## To add the SonarQuality Gate with Own Rule
+
+SonarQube dashboard > Quality Gates > Create > Name > vprofileQG > save
+
+Add Condition > On Overall code 
+
+Quality Gate fails when > Bugs is greater than 25 > Add condition
+
+
+![image](https://github.com/user-attachments/assets/392dbd6a-52d6-4d53-a677-d436ae393a94)
+
+
+To attach this rule to your project
+
+SonarQube dashboard > Project > Project Settings > Quality Gate > Choose > vprofileQG
+
+![image](https://github.com/user-attachments/assets/f7138ecc-2887-45fe-8802-6f2ff9b61bc2)
+
+
+To add the webhooks
+
+SonarQube dashboard > Project > Project Settings > Webhooks > Create
+
+```
+Name - jenkinswebhook
+URL - http://172.31.2.153:8080/sonarqube-webhook  //jenkins-private-ip
+```
+
+![image](https://github.com/user-attachments/assets/c80bd6cc-251c-4ef5-852d-df0959149edd)
+
+
+Github > Jenkinsfile
+
+```
+pipeline {
+	agent any
+	tools {
+		jdk "OracleJDK8"
+                maven "MAVEN3.9"
+		}
+	environment {
+		SNAP_REPO = 'devops-snapshots'
+                NEXUS_USER = 'admin'
+                NEXUS_PASS = 'admin@23'
+                RELEASE_REPO = 'devops-release'
+                CENTRAL_REPO = 'devops-central'
+                NEXUSIP = '172.31.9.243'
+                NEXUSPORT = '8081'
+                NEXUS_GRP_REPO = 'devops-group'
+                NEXUS_LOGIN = 'nexuslogin'
+		SONARSERVER = 'sonarserver'
+        	SONARSCANNER = 'sonarscanner'
+		}
+	stages{
+		stage('BUILD'){
+			steps {
+				sh 'mvn -s settings.xml -DskipTests install'
+				}
+			post {
+				success {
+					echo "Archiving"
+					archiveArtifacts artifacts: '**/*.war'
+						}
+					}
+				}
+		stage('Test') {
+			steps {
+				sh 'mvn -s settings.xml test'
+			}
+		}
+		stage('Checkstyle Analysis') {
+			steps {
+				sh 'mvn -s settings.xml checkstyle:checkstyle'
+			}
+		}
+		stage('Sonar Analysis') {
+			environment {
+				scannerHome = tool "${SONARSCANNER}"
+				}
+			steps {
+				withSonarQubeEnv("${SONARSERVER}") {
+					sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+					}
+				}
+			}
+		stage("Quality Gate") {
+			steps {
+				timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+					waitForQualityGate abortPipeline: true
+					}
+				}
+			}
+		
+	}
+}
+```
+
+My build has been failed due to to quality gate failure  (its expected one)
+
+
+![image](https://github.com/user-attachments/assets/32557959-b9ea-48e0-8262-eae243a1adaf)
+
+
+Lets increase the Quality Gate value as 100 and start the build
+
+
+![image](https://github.com/user-attachments/assets/241e1be8-b175-4a99-8cc2-3bdfd3f57b01)
+
+
+Now my build has been succeeded
+
+
+![image](https://github.com/user-attachments/assets/08498781-7781-48a4-97fa-0b52649d50e6)
+
+
+![image](https://github.com/user-attachments/assets/dc852804-1d7a-4524-b130-289e272b582b)
+
+
 
