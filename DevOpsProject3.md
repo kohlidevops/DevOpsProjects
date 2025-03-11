@@ -832,4 +832,171 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 usermod -aG docker jenkins
 su - jenkins
 docker images
+exit
+sudo systemctl restart jenkins.service
 ```
+
+
+## To add the Docker Build and Push stage in Jenkinsfile
+
+Github > vprofile-project > StagePipeline > Jenkinsfile
+
+```
+def COLOR_MAP = [
+    'SUCCESS': 'good', 
+    'FAILURE': 'danger',
+]
+pipeline {
+	agent any
+	tools {
+		jdk "OracleJDK8"
+                maven "MAVEN3.9"
+		}
+	environment {
+		SNAP_REPO = 'devops-snapshots'
+                NEXUS_USER = 'admin'
+                NEXUS_PASS = 'admin@23'
+                RELEASE_REPO = 'devops-release'
+                CENTRAL_REPO = 'devops-central'
+                NEXUSIP = '172.31.9.243'
+                NEXUSPORT = '8081'
+                NEXUS_GRP_REPO = 'devops-group'
+                NEXUS_LOGIN = 'nexuslogin'
+		SONARSERVER = 'sonarserver'
+        	SONARSCANNER = 'sonarscanner'
+		registryCredential = 'ecr:ap-south-1:awscreds'
+                appRegistry = '590183829524.dkr.ecr.ap-south-1.amazonaws.com/vprofileappimg'
+                vprofileRegistry = "https://590183829524.dkr.ecr.ap-south-1.amazonaws.com"
+		}
+	stages{
+		stage('BUILD'){
+			steps {
+				sh 'mvn -s settings.xml -DskipTests install'
+				}
+			post {
+				success {
+					echo "Archiving"
+					archiveArtifacts artifacts: '**/*.war'
+						}
+					}
+				}
+		stage('Test') {
+			steps {
+				sh 'mvn -s settings.xml test'
+			}
+		}
+		stage('Checkstyle Analysis') {
+			steps {
+				sh 'mvn -s settings.xml checkstyle:checkstyle'
+			}
+		}
+		stage('Sonar Analysis') {
+			environment {
+				scannerHome = tool "${SONARSCANNER}"
+				}
+			steps {
+				withSonarQubeEnv("${SONARSERVER}") {
+					sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+					}
+				}
+			}
+		stage("Quality Gate") {
+			steps {
+				timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+					waitForQualityGate abortPipeline: true
+					}
+				}
+			}
+		stage("UploadArtifact"){
+			steps{
+				nexusArtifactUploader(
+                                nexusVersion: 'nexus3',
+                                protocol: 'http',
+                                nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                                groupId: 'QA',
+                                version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                                repository: "${RELEASE_REPO}",
+                                credentialsId: "${NEXUS_LOGIN}",
+                                artifacts: [
+					[artifactId: 'vproapp',
+					 classifier: '',
+					 file: 'target/vprofile-v2.war',
+					 type: 'war']
+					]
+					)
+				}
+			}
+		 stage('Build App Image') {
+			 steps {
+				 script {
+					 dockerImage = docker.build( appRegistry + ":$BUILD_NUMBER", "./Docker-files/app/multistage/")
+					 }
+				 }
+			 }
+		stage('Upload App Image') {
+			steps{
+				script {
+					docker.withRegistry( vprofileRegistry, registryCredential ) {
+						dockerImage.push("$BUILD_NUMBER")
+						dockerImage.push('latest')
+						}
+					}
+				}
+			}
+		}
+	post {
+		always {
+			echo 'Slack Notifications.'
+			slackSend channel: '#jenkinscicdchannel',
+				color: COLOR_MAP[currentBuild.currentResult],
+				message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+			}
+		}
+	}
+```
+
+
+## To create CICD Pipeline in Jenkins Dashboard
+
+Jenkins > new item > name > vprofile-cicd-pipeline > Pipeline > create
+
+```
+choose > GitHub hook trigger for GITScm polling
+Pipeline > Definition > Pipeline Script from SCM
+SCM - Git
+Repository URL - git@github.com:kohlidevops/vprofile-project.git
+Credentials - git
+Branch Specifier - */cicd-jenkins
+Script path - StagePipeline/Jenkinsfile
+Apply and Save
+```
+
+To start the build and check the status - My build has been succedded
+
+
+![image](https://github.com/user-attachments/assets/30cf5065-30c1-46c5-bace-5d7eac0ed78b)
+
+
+If you check with your AWS ECR, you can see your images
+
+![image](https://github.com/user-attachments/assets/718fe214-120a-4b7e-b390-00f435e02c88)
+
+
+
+
+
+
+
+
+
+
+
