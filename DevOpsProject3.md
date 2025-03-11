@@ -710,7 +710,53 @@ If you check with Slack channel
 ![image](https://github.com/user-attachments/assets/add5517c-1ada-4281-8552-59d614beccad)
 
 
+## To setup the Github repo for CICD
+
+First clone the below repo and checkout the docker branch in your local machine
 
 
+https://github.com/kohlidevops/vprofile-project.git
 
+```
+git clone https://github.com/kohlidevops/vprofile-project.git
+git checkout docker
+//Copy the Docker-files folder
+git checkout ci-jenkins
+//create a new branch called cicd-jenkins
+git checkout cicd-jenkins
+//Place the Docker-files folder in cicd-jenkins branch
+//To create two folders in cicd-jenkins branch
+mkdir StagePipeline ProdPipeline
+cp Jenkinsfile StagePipeline/
+cp Jenkinsfile ProdPipeline/
+//remove the Jenkinsfile in cicd-jenkins
+git rm Jenkinsfile
+```
+
+![image](https://github.com/user-attachments/assets/172684b4-4df1-43ab-9681-a4d88862a139)
+
+
+Now push the code to Github repo
+
+```
+git add.
+git commit -m "preparing cicd pipeline"
+git push origin cicd-jenkins
+```
+
+![image](https://github.com/user-attachments/assets/80c40ded-2f4e-4170-a654-cf4a7e5c61cb)
+
+
+## To update the Jenkins Ip in Github webhook
+
+Github > Your project > Settings > Webhook > Add a new webhook
+
+```
+Payload URL - http://55.106.75.123:8080/github-webhook/
+content type - application/json
+Which events would you like to trigger this webhook - Just the push event. 
+Add webhook
+```
+
+![image](https://github.com/user-attachments/assets/18a42574-cbb9-4747-8c92-c29018af3787)
 
