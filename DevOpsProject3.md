@@ -760,3 +760,76 @@ Add webhook
 
 ![image](https://github.com/user-attachments/assets/18a42574-cbb9-4747-8c92-c29018af3787)
 
+
+## To create an IAM user with policy
+
+To create an IAM user with below policies to grant jenkins to access the ECS and ECR in AWS and store the access key and secret key in somewhere
+
+
+![image](https://github.com/user-attachments/assets/16745097-48fd-4bec-bb7e-99ae0ab091a1)
+
+
+## To create an AWS Elastic Container Registry
+
+AWS > ECR > Create a Private repository > Name > vprofileappimg >
+
+![image](https://github.com/user-attachments/assets/5e9a6842-6b92-45f7-8a22-879c64e5408f)
+
+
+## To install the plugins in Jenkins 
+
+To install below plugins in Jenkins dashboard
+
+Jenkins > Manage plugins > Available > Install plugins
+
+```
+Docker Pipeline
+CloudBees Docker Build and Push
+Amazon ECR
+Pipeline: AWS Steps
+```
+
+![image](https://github.com/user-attachments/assets/afd3a0ca-b5b0-4e25-841e-182cfb384aee)
+
+
+## To add the IAM credential in Jenkins
+
+Jenkins > Manage Jenkins > Credential > System > Global credential
+
+```
+Kind - AWS Credential
+ID - awscreds
+Access key - 1111111111111111
+Secret key - ****************
+Create
+```
+
+![image](https://github.com/user-attachments/assets/3b3c056f-21b4-47e9-80c3-fd77fb6d1773)
+
+
+## To install AWS CLI and Docker Engine in Jenkins Server
+
+SSH to Jenkins Server
+
+
+```
+sudo -i
+apt update && apt install awscli -y
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+usermod -aG docker jenkins
+su - jenkins
+docker images
+```
