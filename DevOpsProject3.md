@@ -1,4 +1,4 @@
-# Continuous Integration Using Jenkins, Nexus, SonarQube and Slack
+# Continuous Integration and Continuous Delivery Using Jenkins, Nexus, SonarQube Analysis, QualityGate Status Check, Docker, Amazon Elastic Container Registry (ECR), Amazon Elastic Container Service (ECS) and Slack Channel
 
 ## Jenkins, Nexus and SonarQube Setup
 
@@ -1368,7 +1368,69 @@ pipeline {
 
 #### To create a new CICD Pipeline for Production in Jenins
 
-Jenkins > New Item > Name > vpro-cicd-prod-pipeline > Create
+Jenkins > New Item > Name > vpro-cicd-prod-pipeline > Copy from > vprofile-cicd-pipeline > Create
+
+```
+Choose > Github hook trigger for GITScm polling
+Pipeline > Definition > Pipeline Script from SCM
+SCM > Git
+Repository URL > git@github.com:kohlidevops/vprofile-project.git
+Credentials > git //your token
+Branch Specifier > */prod
+Script Path > ProdPipeline/Jenkinsfile
+Apply & Save
+```
+
+Start the Build > Build has been succeeded
+
+
+![image](https://github.com/user-attachments/assets/7fe6fcff-29d6-4619-b3b5-584a9a15abb6)
+
+
+If you check with the Prod ECS Task the new task has been created
+
+
+![image](https://github.com/user-attachments/assets/fc1d86ea-6939-4f1f-bdad-e472da14de67)
+
+
+#### To promote the deployment from Staging to Prod once Approved
+
+Go to your Local machine > vprofile-project > cicd-jenkins branch (staging branch) > do some change in README.md > commit
+
+```
+git checkout cicd-jenkins
+git add .
+git commit -m "new update"
+git push origin cicd-jenkins
+```
+
+Now the Staging Pipeline should be triggered and deploy the image on Staging ECS
+
+![image](https://github.com/user-attachments/assets/29ec6131-5b53-4f50-abf2-c599d2bbed87)
+
+
+Once the Staging App is approved, then promote this to Prod Pipeline
+
+![image](https://github.com/user-attachments/assets/8c50579e-1ee6-476d-9209-226c84b6e063)
+
+
+Navigate to your repo > then do below activity
+
+
+```
+git checkout prod
+git merge cicd-jenkins
+git push origin prod
+```
+
+Now the Prod Pipeline should be triggered and deploy the image on Prod ECS
+
+![image](https://github.com/user-attachments/assets/a24c717c-7289-46a8-af1a-759b19487aea)
+
+
+![image](https://github.com/user-attachments/assets/5f2a5d86-aa03-4cc0-b3ea-ecfbcc338b3b)
+
+
 
 
 
