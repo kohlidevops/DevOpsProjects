@@ -991,7 +991,7 @@ If you check with your AWS ECR, you can see your images
 ![image](https://github.com/user-attachments/assets/718fe214-120a-4b7e-b390-00f435e02c88)
 
 
-## To Setup Elastic Container Service in AWS
+## To Setup Elastic Container Service in AWS for Staging
 
 AWS > ECS > Create Cluster
 
@@ -1220,6 +1220,91 @@ New task is assigned just now
 
 
 ![image](https://github.com/user-attachments/assets/7ea7f524-e83b-41c2-93b0-b659dbe02273)
+
+
+
+## To Setup Elastic Container Service in AWS for Production
+
+AWS > ECS > Create Cluster
+
+```
+Cluster name - vproprod
+Namespace - vproprod
+Infrastructure - Fargate
+Monitoring > Enable > Container Insights
+Tags > Name > vproprod
+Create a Cluster
+```
+
+![image](https://github.com/user-attachments/assets/5880f2ea-38ec-4b16-b5b4-a943521d5040)
+
+
+#### To create a Task definition
+
+AWS > ECS > Task definition
+
+```
+Task definition family > vproappprodtask
+Infrastructure requirements > Launch type > AWS Fargate
+Operatin system > Linux/X86_64
+CPU > 1
+Memory > 3
+Task role > None
+Task execution role > ECSTaskExecutionRole
+Container details > Name > vproapp
+Image URI > 123456789.dkr.ecr.ap-south-1.amazonaws.com/vprofileappimg  //your ECR Image URI
+Port mapping > Container port > 8080
+//Rest of things leave as default and create a Task definition
+```
+
+![image](https://github.com/user-attachments/assets/5f8298c2-6846-4d1a-9bc9-2408604387ff)
+
+
+#### To create a Service in ECS
+
+AWS > ECS > Cluster > Choose your Cluster > Create a Service
+
+```
+Computer configuration > Launch type > Fargate
+Platform version > Latest
+Deployment configuration > Application type > Service
+Task definition > Choose > Specify revision manually
+Family > vproappprodtask
+Service name > vproappprodsvc
+Service type > Replica
+Desired task > 1
+Networking > VPC > Select your VPC
+Subnets > Select all subnets
+Security group > New > vprappprod-sg
+Inbound rule > 8080 with Anywhere
+Loadbalancing > Use Loadbalancing
+Load balancer type > ALB
+container > vproapp 8080:8080
+Create a new Loadbalancer > vproappprod-alb
+Create a new listener > 80 with HTTP
+Create a new target group > vproappprod-tg
+Protocol > HTTP
+Deregistration delay > 120
+Healthcheck protocol > HTTP
+Healthcheck path > /login
+Create
+
+Edit your Target group > override > Healthcheck port > 8080 > save changes
+```
+
+New service has been created for prodsvc
+
+![image](https://github.com/user-attachments/assets/4d1967ec-7ead-4af2-a9d1-861010ac3e80)
+
+
+The prod loadbalancer has been created
+
+![image](https://github.com/user-attachments/assets/b0f05ca0-418f-4223-9afb-27f1cda1b720)
+
+
+If you access the ALB URL
+
+![image](https://github.com/user-attachments/assets/52cecf44-d9c8-4277-91ad-9afe318f9f90)
 
 
 
