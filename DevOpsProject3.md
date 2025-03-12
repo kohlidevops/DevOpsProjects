@@ -991,8 +991,86 @@ If you check with your AWS ECR, you can see your images
 ![image](https://github.com/user-attachments/assets/718fe214-120a-4b7e-b390-00f435e02c88)
 
 
+## To Setup Elastic Container Service in AWS
+
+AWS > ECS > Create Cluster
+
+```
+Cluster name - vprostaging
+Namespace - vprostaging
+Infrastructure - Fargate
+Monitoring > Enable > Container Insights
+Tags > Name > vprostaging
+Create a Cluster
+```
+
+![image](https://github.com/user-attachments/assets/fcd7729e-193c-42a7-ab0a-45fc6f420b30)
 
 
+#### To create a Task definition
+
+AWS > ECS > Task definition
+
+```
+Task definition family > vproappstagetask
+Infrastructure requirements > Launch type > AWS Fargate
+Operatin system > Linux/X86_64
+CPU > 1
+Memory > 3
+Task role > None
+Task execution role > ECSTaskExecutionRole
+Container details > Name > vproapp
+Image URI > 123456789.dkr.ecr.ap-south-1.amazonaws.com/vprofileappimg  //your ECR Image URI
+Port mapping > Container port > 8080
+//Rest of things leave as default and create a Task definition
+```
+
+![image](https://github.com/user-attachments/assets/f0d59f45-dcc5-4790-83ff-805be911fe58)
+
+
+#### To create a Service in ECS
+
+AWS > ECS > Cluster > Choose your Cluster > Create a Service
+
+```
+Computer configuration > Launch type > Fargate
+Platform version > Latest
+Deployment configuration > Application type > Service
+Task definition > Choose > Specify revision manually
+Family > vproappstagetask
+Service name > vproappstagesvc
+Service type > Replica
+Desired task > 1
+Networking > VPC > Select your VPC
+Subnets > Select all subnets
+Security group > New > vprappstage-sg
+Inbound rule > 8080 with Anywhere
+Loadbalancing > Use Loadbalancing
+Load balancer type > ALB
+container > vproapp 8080:8080
+Create a new Loadbalancer > vproappstage-alb
+Create a new listener > 80 with HTTP
+Create a new target group > vproappstag-tg
+Protocol > HTTP
+Deregistration delay > 120
+Healthcheck protocol > HTTP
+Healthcheck path > /login
+Create
+
+Edit your Target group > override > Healthcheck port > 8080 > save changes
+```
+
+![image](https://github.com/user-attachments/assets/e91051b7-65a8-44bd-aa08-fe3c72e54bc9)
+
+
+New Loadbalancer has been created and it mapped the target group as we have configured
+
+![image](https://github.com/user-attachments/assets/03b625c6-4ede-40e7-af6d-5fbd84fd57db)
+
+
+
+
+ 
 
 
 
