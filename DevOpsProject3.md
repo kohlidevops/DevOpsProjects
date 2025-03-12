@@ -1068,6 +1068,11 @@ New Loadbalancer has been created and it mapped the target group as we have conf
 ![image](https://github.com/user-attachments/assets/03b625c6-4ede-40e7-af6d-5fbd84fd57db)
 
 
+If you hit the ALB URL in browser, then our container has been running successfully in ECS
+
+
+![image](https://github.com/user-attachments/assets/e5aa2336-1141-4b76-b905-fb7f9dc9ba1f)
+
 
 
  
