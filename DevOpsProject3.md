@@ -1307,7 +1307,68 @@ If you access the ALB URL
 ![image](https://github.com/user-attachments/assets/52cecf44-d9c8-4277-91ad-9afe318f9f90)
 
 
+#### To create a new branch for Prod
 
+Go to your local machine > your project > create a new branch called prod from cicd-jenkins branch
+
+```
+git checkout -b prod
+ls
+git add .
+git commit -m "new branch"
+git push origin prod
+```
+
+![image](https://github.com/user-attachments/assets/03281e64-9f62-42bb-8f74-79f0087dc5e2)
+
+
+Check your github repository
+
+
+![image](https://github.com/user-attachments/assets/11ec9956-20c1-4ccb-a9e2-01224ddbaf7f)
+
+
+Github repo > vprofile-project > prod branch > edit > Jenkinsfile > commit the code
+
+```
+def COLOR_MAP = [
+    'SUCCESS': 'good', 
+    'FAILURE': 'danger',
+]
+pipeline {
+	agent any
+	tools {
+		jdk "OracleJDK8"
+                maven "MAVEN3.9"
+		}
+	environment {
+		cluster = "vproprod"
+		service = "vproappprodsvc"
+		}
+	stages{
+		stage('Deploy to ECS Production') {
+			steps {
+				withAWS(credentials: 'awscreds', region: 'ap-south-1') {
+					sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
+					}
+				}
+			}
+		}
+	post {
+		always {
+			echo 'Slack Notifications.'
+			slackSend channel: '#jenkinscicdchannel',
+				color: COLOR_MAP[currentBuild.currentResult],
+				message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+			}
+		}
+	}
+```
+
+
+#### To create a new CICD Pipeline for Production in Jenins
+
+Jenkins > New Item > Name > vpro-cicd-prod-pipeline > Create
 
 
 
