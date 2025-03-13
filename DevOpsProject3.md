@@ -1,4 +1,4 @@
-# Continuous Integration and Continuous Delivery Using Jenkins, Nexus, SonarQube Analysis, QualityGate Status Check, Docker, Amazon Elastic Container Registry (ECR), Amazon Elastic Container Service (ECS) and Slack Channel
+# To Promote Staging to Production ECS using (Continuous Integration and Continuous Delivery) Jenkins, Nexus, SonarQube Analysis, QualityGate Status Check, Docker, Amazon Elastic Container Registry (ECR), Amazon Elastic Container Service (ECS) and Slack Channel (Notification System)
 
 ## Jenkins, Nexus and SonarQube Setup
 
