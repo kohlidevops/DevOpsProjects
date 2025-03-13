@@ -1092,6 +1092,7 @@ Create
 ```
 Sample step - withDockerRegistry: Sets up Docker registry endpoint
 Registry credential - latchudevops //Select what you created now
+Docker installation - docker
 Generate
 ```
 
