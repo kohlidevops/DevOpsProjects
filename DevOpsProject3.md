@@ -1,7 +1,7 @@
 # To Promote Staging to Production ECS using (Continuous Integration and Continuous Delivery) Jenkins, Nexus, SonarQube Analysis, QualityGate Status Check, Docker, Amazon Elastic Container Registry (ECR), Amazon Elastic Container Service (ECS) and Slack Channel (Notification System)
 
 
-![image](https://github.com/user-attachments/assets/734f6361-9093-449f-a9fc-a47b2909add9)
+![image](https://github.com/user-attachments/assets/3d5dad9a-9284-418d-a2b9-05148e413bef)
 
 
 
