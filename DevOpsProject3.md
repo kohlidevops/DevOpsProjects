@@ -1,5 +1,30 @@
 # To Promote Staging to Production ECS using (Continuous Integration and Continuous Delivery) Jenkins, Nexus, SonarQube Analysis, QualityGate Status Check, Docker, Amazon Elastic Container Registry (ECR), Amazon Elastic Container Service (ECS) and Slack Channel (Notification System)
 
+## To Achieve the CICD Pipeline
+
+**1. Maven Build -> Compiles the project and packages the code into .war or .jar
+
+2. Maven Test -> Executes automated test cases to check if the code is functioning correctly
+
+3. Maven CheckStyle -> Checks the code for style or formatting issues based on predefined rules
+
+4. SonarQube Analysis -> Analyzes the code for bugs, vulnerabilities, and code smells (static code analysis) using SonarQube
+
+5. Quality Gate -> A decision point based on the results of SonarQube analysis. It ensures that the code meets specific quality standards before proceeding
+
+6. Nexus Repository -> After successful testing, the .war file is uploaded to the Nexus repository
+
+7. Build App Docker Image -> The application is packaged into a Docker image by reading the Docker file
+
+8. Upload App Image to ECR ->The Docker image is pushed to a ECR registry
+
+9. Staging ECS -> To deploy the Docker image into Staging ECS Cluster
+
+10. Production ECS -> To deploy the Docker image into Production ECS Cluster once staging branch is merged to production branch in GitHub repository
+
+11. Slack Channel -> To send the Status of CICD Pipeline** 
+
+
 ## Jenkins, Nexus and SonarQube Setup
 
 Launch Ubuntu22 EC2 instance with t3.medium and execute the below script to install jenkins
