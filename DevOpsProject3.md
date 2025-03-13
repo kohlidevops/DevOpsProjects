@@ -2,27 +2,28 @@
 
 ## To Achieve the CICD Pipeline
 
-**1. Maven Build -> Compiles the project and packages the code into .war or .jar
 
-2. Maven Test -> Executes automated test cases to check if the code is functioning correctly
+**1. Maven Build -> Compiles the project and packages the code into .war or .jar**
 
-3. Maven CheckStyle -> Checks the code for style or formatting issues based on predefined rules
+**2. Maven Test -> Executes automated test cases to check if the code is functioning correctly**
 
-4. SonarQube Analysis -> Analyzes the code for bugs, vulnerabilities, and code smells (static code analysis) using SonarQube
+**3. Maven CheckStyle -> Checks the code for style or formatting issues based on predefined rules**
 
-5. Quality Gate -> A decision point based on the results of SonarQube analysis. It ensures that the code meets specific quality standards before proceeding
+**4. SonarQube Analysis -> Analyzes the code for bugs, vulnerabilities, and code smells (static code analysis) using SonarQube**
 
-6. Nexus Repository -> After successful testing, the .war file is uploaded to the Nexus repository
+**5. Quality Gate -> A decision point based on the results of SonarQube analysis. It ensures that the code meets specific quality standards before proceeding**
 
-7. Build App Docker Image -> The application is packaged into a Docker image by reading the Docker file
+**6. Nexus Repository -> After successful testing, the .war file is uploaded to the Nexus repository**
 
-8. Upload App Image to ECR ->The Docker image is pushed to a ECR registry
+**7. Build App Docker Image -> The application is packaged into a Docker image by reading the Docker file**
 
-9. Staging ECS -> To deploy the Docker image into Staging ECS Cluster
+**8. Upload App Image to ECR ->The Docker image is pushed to a ECR registry**
 
-10. Production ECS -> To deploy the Docker image into Production ECS Cluster once staging branch is merged to production branch in GitHub repository
+**9. Staging ECS -> To deploy the Docker image into Staging ECS Cluster**
 
-11. Slack Channel -> To send the Status of CICD Pipeline** 
+**10. Production ECS -> To deploy the Docker image into Production ECS Cluster once staging branch is merged to production branch in GitHub repository**
+
+**11. Slack Channel -> To send the Status of CICD Pipeline**
 
 
 ## Jenkins, Nexus and SonarQube Setup
