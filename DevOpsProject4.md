@@ -797,3 +797,4 @@ Targets > SNS - choose your SNS > Submit
 ![image](https://github.com/user-attachments/assets/1bf391d2-f305-41f3-be86-c2bdcb143fc9)
 
 
+![image](https://github.com/user-attachments/assets/6c1de233-cea1-4e1a-9f9a-722775196c39)
