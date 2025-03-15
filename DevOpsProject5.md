@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/16b05924-3a64-424c-85ec-8ab6482e3eb4)# To deploy application in ECS Cluster using GitHub Actions CICD Workdlows, Maven, SonarQube, QualityGate Status, Docker, Amazon ECR and Amazon ECS
+# To deploy application in ECS Cluster using GitHub Actions CICD Workdlows, Maven, SonarQube, QualityGate Status, Docker, Amazon ECR and Amazon ECS
 
 1. To setup the GitHub repo
 
