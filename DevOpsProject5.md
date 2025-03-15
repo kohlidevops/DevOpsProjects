@@ -321,6 +321,100 @@ To start the workflow > The build has been succeeded after Quality Gate status c
 ![image](https://github.com/user-attachments/assets/c6e43c6d-32ed-4b3e-bc9c-fb337804f9fe)
 
 
+## To Create an IAM User
+
+To create an IAM User with below policies and create accesskey/secretkey then store it somewhere safely
+
+
+![image](https://github.com/user-attachments/assets/5b117f3f-1f00-4f5e-ac20-50016b26f152)
+
+
+## To Create a Amazon ECR - Elastic Container Registry
+
+To create a private repository in ECR
+
+```
+Repository name > actapp
+Image tag mutability > Immutable
+Create
+```
+
+![image](https://github.com/user-attachments/assets/a822118d-69ab-4638-8589-f481fc19a36e)
+
+
+## To Create an Amazon RDS Instance
+
+To create an Amazon RDS with MySQL - 8.0.33, free tier and create a accounts database
+
+```
+RDS > MySQL
+Version > 8.0.33
+Tier > Free
+Database > accounts
+Create a database
+```
+
+![image](https://github.com/user-attachments/assets/0194742c-90e1-42ff-ab3e-bd951c5e05f7)
+
+
+## To launch MySQL Client Instance
+
+To launch an Ubuntu-22 ec2 instance for MySQL Client
+
+
+![image](https://github.com/user-attachments/assets/24fe08f7-e8a5-4e90-9456-4440a4bf3dad)
+
+
+```
+sudo -i
+apt-get update -y
+apt-get install mysql-client -y
+mysql -h <end-point> -u <uname> -p <database>
+mysql -h githubactions.cteacc4ws2sw.ap-south-1.rds.amazonaws.com -u admin -p accounts
+#exit
+```
+
+To clone below link and download the db.sql file in ec2 instance using below link
+
+
+https://github.com/hkhcoder/vprofile-project.git
+
+
+```
+git clone https://github.com/hkhcoder/vprofile-project.git
+cd /root/vprofile-project/src/main/resources/
+//db file shoud be available
+mysql -h <end-point> -u <uname> -p <database> < /Path-to-location/db_backup.sql
+mysql -h githubactions.cteacc4ws2sw.ap-south-1.rds.amazonaws.com -u admin -p accounts < /root/vprofile-project/src/main/resources/db_backup.sql
+mysql -h githubactions.cteacc4ws2sw.ap-south-1.rds.amazonaws.com -u admin -p accounts
+#show tables
+```
+
+![image](https://github.com/user-attachments/assets/1a56a14a-ad8d-4425-bfec-44d0475c80fc)
+
+
+//Now you can terminate the MySQL Client ec2 instance
+
+
+## To store the credentials in Github secrets
+
+Your project > Settings > Secrets and variables > Actions > New repository secret
+
+```
+AWS_ACCESS_KEY_ID - **************
+AWS_SECRET_ACCESS_KEY - *************
+AWS_ACCOUNT_ID - 1111111111111
+REGISTRY - 1111111111111.dkr.ecr.ap-south-1.amazonaws.com  //This is ecr registry url - you can get this from ecr push commands
+RDS_USER - admin
+RDS_PASS - *****
+RDS_ENDPOINT - githubactions.cteacc4ws2sw.ap-south-1.rds.amazonaws.com
+AWS_REGION - ap-south-1
+```
+
+
+![image](https://github.com/user-attachments/assets/bc38e84a-dc4f-4acf-bf43-e52f5faf1afc)
+
+
 
 
 
