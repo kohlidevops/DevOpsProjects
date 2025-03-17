@@ -416,6 +416,199 @@ AWS_REGION - ap-south-1
 
 
 
+## To Build the Docker Image and Push the Docker Image to the Amazon ECR
+
+Github Actions > main.yml > Edit and update the code
+
+```
+name: Hprofile Actions
+on: workflow_dispatch
+env:
+  AWS_REGION: ap-south-1
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Maven test
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
+      - name: Set Java 11
+        uses: actions/setup-java@v3
+        with:
+         distribution: 'temurin' # See 'Supported distributions' for available options
+         java-version: '11'
+
+    # Setup sonar-scanner
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+   
+    # Run sonar-scanner
+      - name: SonarQube Scan
+        run: sonar-scanner
+           -Dsonar.host.url=${{ secrets.SONAR_URL }}
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+           -Dsonar.sources=src/
+           -Dsonar.junit.reportsPath=target/surefire-reports/ 
+           -Dsonar.jacoco.reportsPath=target/jacoco.exec 
+           -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/
+
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        # Force to fail step after specific time.
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL   
+
+  BUILD_AND_PUBLISH:
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Update application.properties file
+        run: |
+          sed -i "s/^jdbc.username.*$/jdbc.username\=${{ secrets.RDS_USER }}/" src/main/resources/application.properties
+          sed -i "s/^jdbc.password.*$/jdbc.password\=${{ secrets.RDS_PASS }}/" src/main/resources/application.properties
+          sed -i "s/db01/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
+
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+         access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         registry: ${{ secrets.REGISTRY }}
+         repo: actapp
+         region: ${{ env.AWS_REGION }}
+         tags: latest,${{ github.run_number }}
+         daemon_off: false
+         dockerfile: ./Dockerfile
+         context: ./
+
+```
+
+To start the build and check the result - Now two jobs are running.
+
+
+![image](https://github.com/user-attachments/assets/b63f7a74-4cd2-4354-9204-65995f43d41b)
+
+
+The build has been succeeded
+
+
+![image](https://github.com/user-attachments/assets/2c4317ce-eb86-46e9-b265-6f29bc1d17d4)
+
+
+Docker image has been pushed in to the ECR repository
+
+
+![image](https://github.com/user-attachments/assets/459f0397-cad4-4007-9e1b-9c1a803c44ce)
+
+
+
+## To create an Amazon ECS Cluster
+
+AWS > ECS Cluster > Create
+
+```
+Cluster name - vpro-act
+Default namespace - vpro-act
+AWS Infrastructure - Fargate
+Tag > Name > vpro-act
+Create a Cluster
+```
+
+
+![image](https://github.com/user-attachments/assets/434f1c99-c3fa-481d-a85c-f206ea621015)
+
+
+#### To create a new Task Definition
+
+AWS > ECS Cluster > Task definition > new Task definition
+
+```
+Task definition family > vproapp-act-tdef
+Launch type > AWS fargate
+Operating system/Architecture > Linux/X86_64
+CPU > 1 and Memory > 2 GB
+Task role > -
+Task execution role - Create new role
+Container name > vproapp
+Image URI > 590183829524.dkr.ecr.ap-south-1.amazonaws.com/actapp
+Essential container - yes
+Container port > 8080
+Protocol > TCP
+Port name > vproapp-8080-tcp
+App protocol > HTTP
+Log collection > Use log collection > Amazon Cloudwatch
+Create
+```
+
+![image](https://github.com/user-attachments/assets/f5c9a012-ae66-4f0d-b02f-4468ce462f75)
+
+
+#### To Create a new Service in ECS
+
+AWS > ECS > Your Cluster > Create a new service
+
+```
+Compute options > Capacity provider strategy
+Capacity provider > Fargate
+Platform version > LATEST
+Deployment configuration > Application type > Service
+Family > vproapp-act-tdef > Revision - 1
+Service name > vproapp-act-svc
+Service type > replica
+Desired tasks > 1
+Deployment type > Rolling update
+Deployment failure detection > unselect > Use the Amazon ECS deployment circuit breaker
+Networking > Choose your VPC and all subnets
+Security group > Exisiting or new
+PublicIP - Turned on
+Loadbalancing > Use Loadbalancing > ALB
+Conatainer > vproapp 8080:8080
+Application loadbalancer > Create a new loadbalancer
+Loadbalancer name > vproapp-act-elb
+Create a new listener > Port > 80 > Protocol > HTTP
+Target group > Create new Target group > vproapp-act-tg
+Protocol > HTTP
+Deregistration delay > 120
+Healthchecks protocol > HTTP
+Healthcheck path > /login
+Tag > Name > vproapp-act-svc
+Create a Service
+```
+
+Service has been created
+
+
+![image](https://github.com/user-attachments/assets/57aff455-c0b0-4ce7-b92b-0eed6e5d9a66)
+
+
+If you check with the ALB URL, then you can access the application
+
+
+![image](https://github.com/user-attachments/assets/e8a5ec8d-fd06-4358-8d95-7e34a099204e)
+
+
+
+
+
+
+
 
 
 
