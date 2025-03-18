@@ -1,0 +1,85 @@
+# Kubernetes Project
+
+## Deploy a Kubernetes Cluster using KOPS
+
+#### Launch an EC2 instance
+
+To launch Ubuntu-24 EC2 instance with T2.Micro for KOPS operation
+
+
+![image](https://github.com/user-attachments/assets/ae993064-d59a-4d7d-be1a-a6f68c08cc0a)
+
+
+To assign IAM Role with Administrator access for KOPS instance. Because this KOPS will communicate with lot of AWS services such as Autoscaling, Route53, S3 bucket...
+
+
+![image](https://github.com/user-attachments/assets/3aa6550b-42e2-4455-a915-97f7a230494d)
+
+
+#### Install AWS CLi
+
+SSH to KOPS instance
+
+```
+sudo -i
+ssh-keygen
+ls -lh ~/.ssh/
+//To note the public key file name (id_ed25519.pub)
+snap install aws-cli --classic
+aws --version
+```
+
+#### Install KOPS
+
+You can refer - https://kops.sigs.k8s.io/getting_started/install/
+
+```
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+chmod +x kops
+sudo mv kops /usr/local/bin/kops
+kops version
+```
+
+#### Install kubectl
+
+You can refer - https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+```
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+```
+
+#### Create a S3 Bucket
+
+All the cluster information should stored in this S3 bucket. Whenever we use the kops command such as create, validate and delete then we should use s3 bucket
+
+
+![image](https://github.com/user-attachments/assets/0fca86a1-0e83-4f4c-ab22-c0596928ed21)
+
+
+#### To create a subdomain in Route53
+
+To create a subdomain in Route53 and map the NS in root domain registrar
+
+![image](https://github.com/user-attachments/assets/9c698d1a-6334-4cb9-9e03-898d13b54773)
+
+
+#### To create and update a kops cluster
+
+```
+kops create cluster --name=kubepro.demo.com --state=s3://kopsstate744 --zones=ap-south-1a,ap-south-1b --node-count=2 --node-size=t3.small --control-plane-size=t3.medium --dns-zone=kubepro.demo.com --node-volume-size=12 --control-plane-volume-size=12 --ssh-public-key ~/.ssh/id_ed25519.pub
+kops update cluster --name=kubepro.demo.com --state=s3://kopsstate744 --yes --admin
+kops validate cluster --name=kubepro.demo.com --state=s3://kopsstate744
+ls -la .kube
+cat .kube/config
+```
+
+#### To delete the kops cluster
+
+```
+kops delete cluster --name=kubepro.demo.com --state=s3://kopsstate744 --yes
+```
+
