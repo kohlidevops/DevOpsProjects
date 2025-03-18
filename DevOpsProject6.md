@@ -77,6 +77,15 @@ ls -la .kube
 cat .kube/config
 ```
 
+My cluster has been created
+
+
+![image](https://github.com/user-attachments/assets/bb596b5d-ad57-44dc-9069-bce418c56eaa)
+
+
+![image](https://github.com/user-attachments/assets/629f87fe-a4ec-4541-9aa6-16d7d1bc9d7a)
+
+
 #### To delete the kops cluster
 
 ```
