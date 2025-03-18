@@ -92,3 +92,104 @@ My cluster has been created
 kops delete cluster --name=kubepro.demo.com --state=s3://kopsstate744 --yes
 ```
 
+
+# To Deploy a Amazon EKS Cluster using EKSCTL
+
+
+#### Launch an EC2 instance
+
+To launch Ubuntu-24 EC2 instance with T2.Micro for KOPS operation
+
+
+![image](https://github.com/user-attachments/assets/ed93e1b7-3be8-4258-b3e2-bed74b3d3e75)
+
+
+To assign IAM Role with Administrator access for EKSCTL instance
+
+#### Install AWS CLi
+
+SSH to EKSCTL instance
+
+```
+sudo -i
+snap install aws-cli --classic
+aws --version
+```
+
+#### Install kubectl
+
+You can refer - https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+```
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+```
+
+
+#### Install EKSCTL
+
+You can refer - https://eksctl.io/installation/
+
+```
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+```
+
+![image](https://github.com/user-attachments/assets/b65229ce-7e7a-491f-b754-ddaaadfa7a0b)
+
+
+#### Install EKS Cluster
+
+
+You can use below link to download the script to launch cluster
+
+```
+https://github.com/kohlidevops/DevOpsProjects/blob/main/eks-cluster-setup.sh
+sudo -i
+sh eks-cluster-setup.sh
+```
+
+EKS Cluster has been created with their own VPC and master node managed by Amazon
+
+
+![image](https://github.com/user-attachments/assets/349c63a2-94d9-4a96-88bf-e2022aaf2062)
+
+
+You can see the worker nodes which is managed by you
+
+
+![image](https://github.com/user-attachments/assets/38014ecf-bf4a-427a-9329-d6ee0a966c09)
+
+
+If you execute kubectl command from EKSCTL instance
+
+```
+kubectl get nodes
+kubectl get pods -o wide
+```
+
+![image](https://github.com/user-attachments/assets/fbd38931-5f8b-4b04-bc7f-92c6ccfdb1ca)
+
+
+#### To delete the EKSCTL Cluster
+
+To delete the EKS cluster entirely using below command
+
+```
+sudo -i
+eksctl delete cluster vprofile-eks-cluster --region ap-south-1
+```
+
+
+![image](https://github.com/user-attachments/assets/71bda923-403d-4d58-8114-880bd13fa646)
+
+
+The cluster has been removed from AWS EKS
