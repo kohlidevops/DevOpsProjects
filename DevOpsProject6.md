@@ -193,3 +193,86 @@ eksctl delete cluster vprofile-eks-cluster --region ap-south-1
 
 
 The cluster has been removed from AWS EKS
+
+
+## Architecture Diagram
+
+
+![image](https://github.com/user-attachments/assets/7753fa52-193a-4f15-a476-17e4a12e396c)
+
+
+**1. Application Load Balancer (ALB)**
+
+The ALB distributes incoming traffic from users to the backend services in a balanced way, ensuring no one service is overloaded.It acts as the entry point for all the incoming traffic.
+
+
+**2. Ingress**
+
+Ingress manages external access to services within the Kubernetes cluster, typically HTTP or HTTPS traffic. It provides routing rules to connect the outside world to the services. Acts as a gateway within Kubernetes, forwarding the incoming requests to the appropriate service (like TomcatService). 
+
+
+**3. TomcatService**
+
+This service is responsible for routing requests to the Tomcat pods in the Kubernetes cluster. TomcatService allows clients to access the Tomcat application.
+
+
+**4. Tomcat Pod**
+
+Represents a pod running an instance of the Tomcat web server inside the Kubernetes cluster. Tomcat is used to host and run Java-based applications and APIs.
+
+
+**5. RabbitMQ Pod**
+
+RabbitMQ is a message broker that helps in asynchronous communication between services.
+
+
+**6. Memcache Pod**
+
+Memcached is an in-memory key-value store used for caching data.
+
+
+**7. DB Pod**
+
+Represents the database pod where the actual MySQL database resides. The DB Pod stores the persistent data of the application. The data is saved in /var/lib/mysql, which is mounted to an external storage (Amazon EBS) for persistence.
+
+
+**8. PersistentVolumeClaim (PVC)**
+
+PVC is a request for storage by a user, which is fulfilled by a PersistentVolume (PV). It allows pods to request storage resources. The PVC is used to persist the MySQL data in the database pod, ensuring that the data is not lost when the pod is destroyed or rescheduled.
+
+
+**9. StorageClass**
+
+StorageClass defines the type of storage being provisioned for PersistentVolumes. It is associated with Amazon EBS and provides the backend storage to satisfy the PVC requests. It allows dynamic provisioning of storage volumes as needed by the cluster.
+
+
+**10. Amazon EBS (Elastic Block Store)**
+
+Amazon EBS is used to provide block storage volumes for use with EC2 instances or Kubernetes pods.
+
+
+**11. Secret**
+
+Secrets are used in Kubernetes to store sensitive information such as passwords, tokens, and keys. The Secret is likely being used to store sensitive credentials, such as database passwords, access tokens, or certificates, which are accessed by the services and pods securely.
+
+
+## Source code repo
+
+To fork the below repo with unselect -> main branch only
+
+
+```
+https://github.com/kohlidevops/vprofile-project-kube/tree/kubeapp
+
+select > kubeapp branch
+```
+
+In kubedefs folder, we have all the manifest yaml file for k8 application
+
+You can refer the yaml files
+
+secret.yaml > dbvpc.yaml > dbdeploy.yaml > dbservice.yaml > mcdep.yaml > mcservice.yaml > rmqdeploy.yaml > rmqservice.yaml > appdeploy.yaml > appservice.yaml > appingress.yaml
+
+
+
+
