@@ -278,6 +278,224 @@ secret.yaml > dbvpc.yaml > dbdeploy.yaml > dbservice.yaml > mcdep.yaml > mcservi
 
 
 
+## Create a Kubernetes Cluster using KOPS
+
+SSH to Kops instance
+
+```
+sudo -i
+Install kubectl, awscli, kops in kops instance
+Create a HostedZone
+Create a S3 bucket
+Create a ssh-keygen in kops instance as root user
+
+kops create cluster --name=kubevpro.demo.com --state=s3://kopsstate744 --zones=ap-south-1a,ap-south-1b --node-count=2 --node-size=t3.small --control-plane-size=t3.medium --dns-zone=kubevpro.demo.com --node-volume-size=12 --control-plane-volume-size=12 --ssh-public-key ~/.ssh/id_ed25519.pub
+kops update cluster --name=kubevpro.demo.com --state=s3://kopsstate744 --yes --admin
+kops validate cluster --name=kubevpro.demo.com --state=s3://kopsstate744
+ls -la .kube
+cat .kube/config
+```
+
+The master and worker node has been created 
+
+
+![image](https://github.com/user-attachments/assets/dffacd54-4d2f-47d0-9b74-60bcc110b755)
+
+
+Austoscaling has been created for every node
+
+All the cluster information has been stored in S3 bucket
+
+
+![image](https://github.com/user-attachments/assets/2ba17da4-cf03-4265-90be-20565f980d25)
+
+
+The records are created in AWS Route53 Hosted Zone
+
+
+![image](https://github.com/user-attachments/assets/2ecc9c0b-ce8d-4bef-8dff-513150d579fe)
+
+
+If I validate my cluster, then my cluster are up and running
+
+
+![image](https://github.com/user-attachments/assets/232182b2-0cb2-4e12-8807-26f73b813f28)
+
+
+We can check with nodes status and check all the default pods are running or not
+
+
+```
+kubectl get nodes
+kubectl get pods -A
+```
+
+
+![image](https://github.com/user-attachments/assets/b7cef7ae-6e01-4368-b54d-239cf33baf2b)
+
+
+### To setup the repo for deployment
+
+To clone the repo with specific branch in local machine
+
+```
+git clone --branch kubeapp --single-branch https://github.com/kohlidevops/vprofile-project-kube.git
+cd vprofile-project-kube
+ls -lh
+```
+
+
+![image](https://github.com/user-attachments/assets/f1aa7522-1b43-48f7-805a-c08ae68c1bc5)
+
+
+Keep the necessary file as we are not doing build, test like. - So keep the below folders and files
+
+```
+Docker-files
+docker-compose.yml
+kubedefs
+```
+
+
+To create a new repo named kubevpro in Github repo and upload the above files
+
+
+![image](https://github.com/user-attachments/assets/38b6377c-ffe5-4a2d-84b1-0213242a2b42)
+
+
+To clone the new repo to the kops instance
+
+```
+git clone https://github.com/kohlidevops/kubevpro.git
+ls -lh
+```
+
+
+![image](https://github.com/user-attachments/assets/70c8a1ba-ae74-48c2-b9b8-4b20c39d56cc)
+
+
+## To create a NGINX Ingress Controller
+
+To create a NGINX ingress controller for AWS which is manage the Loadbalancer - For this to deploy in kops instance
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
+kubectl get ns
+kubectl get pods -n ingress-nginx
+```
+
+
+![image](https://github.com/user-attachments/assets/25a13443-923a-4d1f-aeac-760c952e28e0)
+
+
+It will provisioning the Network Loadbalancer for us
+
+
+![image](https://github.com/user-attachments/assets/fb3d728d-df99-4a7c-89eb-1ab13552b0d2)
+
+
+## Deploy the PVC
+
+SSH to kops instance
+
+```
+cd kubevpro/kubedefs/
+ls -lh
+kubectl apply -f dbpvc.yaml
+kubectl get pvc
+```
+
+![image](https://github.com/user-attachments/assets/c4b8589a-32f7-4949-b392-62db34ac184f)
+
+
+If you check the AWS EBS volume, it should be availabe state
+
+
+![image](https://github.com/user-attachments/assets/abd65abd-7d1b-43c2-b7a1-b03558038f31)
+
+
+##  Deploy all the remaining manifest files
+
+```
+cd kubevpro/kubedefs/
+kubectl apply -f .
+```
+
+
+![image](https://github.com/user-attachments/assets/25d2f14a-95ae-4b7c-8d20-b03c0c187b96)
+
+
+To check pods, deploy and svc
+
+```
+kubectl get pods
+kubectl get deploy
+kubec6tl get svc
+```
+
+
+![image](https://github.com/user-attachments/assets/ca1dd45b-6697-49c0-9ba6-de3a633132f7)
+
+
+If you want describe the pod
+
+```
+kubectl describe pod <pod-name>
+```
+
+
+All the pods are running as we expected and EBS dynamic provisioning volumes are now in-use means its attached to the node
+
+
+![image](https://github.com/user-attachments/assets/925097c0-9647-49bc-aeae-517f3ccf4bf2)
+
+
+To describe the service
+
+
+```
+kubectl describe svc vproapp-service
+```
+
+
+![image](https://github.com/user-attachments/assets/a15bb6fe-21ec-4592-9d94-55a3ce0e94ad)
+
+
+
+To check the ingress
+
+```
+kubect get ingress
+```
+
+
+![image](https://github.com/user-attachments/assets/a7ca2e1c-dc5f-4cae-8c7e-5d0b4d6a4018)
+
+
+### To map the service endpoint in Route53
+
+
+```
+kubectl describe ingress <ingress-name>
+//map the domain with the alb endpoint
+```
+
+
+If you check with domain name, it should be accessible over the browser
+
+
+![image](https://github.com/user-attachments/assets/f623057d-7a45-4e38-8129-109ea76e1bf9)
+
+
+Even we can able to login
+
+```
+uname - admin_vp
+pwd - admin_vp
+```
+
+
+![image](https://github.com/user-attachments/assets/2ee9668d-69e3-48c6-a09d-9bdba2748149)
 
 
 
