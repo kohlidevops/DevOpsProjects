@@ -1,4 +1,4 @@
-# GitOps to deploy application in Amazon Elastic Kubernetes Cluster using GitHub Actions Workflows, Terraform, Maven, SonarCloud, Docker, ECR, Helm Charts and EKS
+![image](https://github.com/user-attachments/assets/e1357608-3d2b-4cea-85e7-6e81d3513670)# GitOps to deploy application in Amazon Elastic Kubernetes Cluster using GitHub Actions Workflows, Terraform, Maven, SonarCloud, Docker, ECR, Helm Charts and EKS
 
 
 
@@ -85,5 +85,44 @@ git checkout stage
 
 #### To Setup Secrets in GitHub
 
+To create an IAM user with Administrator access and create accesskey for this
+
+
+![image](https://github.com/user-attachments/assets/c48ad362-f42c-4e83-b5cc-5eb98ecfc3f0)
+
+
+To store this access key in iac-vprofile and vprofile-action of GitHub repo
+
+
+![image](https://github.com/user-attachments/assets/402ae975-b5a4-4859-84d7-7aa6804f60ee)
+
+
+To create a S3 bucket named "latchuprofileactions" for terraform tfstate file
+
+
+![image](https://github.com/user-attachments/assets/3294ab2d-e409-4551-b4bf-7c986add65c2)
+
+
+To store the bucket name in iac-vprofile secrets of GitHub repo
+
+
+![image](https://github.com/user-attachments/assets/5029eed2-ad63-4a76-876a-ec3bbac4f592)
+
+
+To create a private repo named vprofileapp in AWS ECR
+
+ECR > Private repo > name > vprofileapp > create
+
+
+![image](https://github.com/user-attachments/assets/672ffeda-1abf-4a49-ae8a-03120b6f4e18)
+
+
+To copy the registry URL in secrets of the vprofile-action repo
+
+
+![image](https://github.com/user-attachments/assets/ad772886-1174-4571-8aa9-22a5e833790f)
+
+
+Registry URL should be in secrets - 590183829524.dkr.ecr.us-east-1.amazonaws.com
 
 
