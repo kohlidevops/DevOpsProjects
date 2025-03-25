@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/e1357608-3d2b-4cea-85e7-6e81d3513670)# GitOps to deploy application in Amazon Elastic Kubernetes Cluster using GitHub Actions Workflows, Terraform, Maven, SonarCloud, Docker, ECR, Helm Charts and EKS
+# GitOps to deploy application in Amazon Elastic Kubernetes Cluster using GitHub Actions Workflows, Terraform, Maven, SonarCloud, Docker, ECR, Helm Charts and EKS
 
 
 
