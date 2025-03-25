@@ -158,3 +158,76 @@ Create a folder > .github/workflows/terraform.yml
 
 
 To update the terraform.yml
+
+
+```
+name: "Vprofile with IAC"
+
+on:
+  push:
+    branches:
+      - main
+      - stage
+    paths:
+      - terraform/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - terraform/**
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  AWS_REGION: us-east-1
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  terraform:
+    name: "Apply Terraform Code Changes"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform with specified version on the runner
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.6.3"
+
+      - name: Terraform init
+        id: init
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+      - name: Terraform format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color -input=false -out planfile
+        continue-on-error: true
+
+      - name: Terraform plan status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+```
+
+Do some changes in terraform/terraform.tf files (branch should be "stage")
+
+
+My Stage job has been succeeded
+
+
+![image](https://github.com/user-attachments/assets/1526b251-e8c0-49bd-96cc-24f65f3cc5c9)
+
+
