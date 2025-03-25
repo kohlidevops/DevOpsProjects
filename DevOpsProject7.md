@@ -126,3 +126,35 @@ To copy the registry URL in secrets of the vprofile-action repo
 Registry URL should be in secrets - 590183829524.dkr.ecr.us-east-1.amazonaws.com
 
 
+
+#### To setup Terraform code for staging
+
+
+Navigate to below repo and switch to stage branch
+
+
+https://github.com/kohlidevops/iac-vprofile/tree/stage/terraform
+
+
+Then do the necessary changes like region, cluster name, and bucket name in variables.tf and terraform.tf file
+
+
+#### Staging Workflow
+
+
+Navigate to your repo and switch to stage branch
+
+
+https://github.com/kohlidevops/iac-vprofile/tree/stage
+
+
+To create a workflow for staging
+
+
+Create a folder > .github/workflows/terraform.yml
+
+
+![image](https://github.com/user-attachments/assets/b558ef7b-5968-4a05-8159-3c9e4711cacc)
+
+
+To update the terraform.yml
