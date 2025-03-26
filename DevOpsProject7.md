@@ -389,8 +389,342 @@ To login sonarcloud with Github login
 
 
 
+To create a new organization > create one manually
+
+```
+Name > vprofile-actions8
+Key > vprofile-actions8
+Choose > free plan
+Create Organization
+Analyze a new project
+Display name > vproapp8
+Project key > vproapp8
+Project visibility > Public
+Next
+The new code for this project will be based on > Previous version
+Create Project
+```
 
 
+To create a token
+
+My account > Security > Generate token > name > gitops > Generate it
+
+```
+e2cf4ba73b300ae35b391fc5f21d2f4725ce741f
+```
+
+Github > vprofile-action (application code repo) > main branch > settings > secrets and variables > actions > new repository secrets > 
+
+
+```
+SONAR_TOKEN - e2cf4ba73b300ae35b391fc5f21d2f4725ce741f
+SONAR_ORGANIZATION - vprofile-actions8
+SONAR_PROJECT_KEY - vproapp8
+SONAR_URL - https://sonarcloud.io
+save it
+```
+
+
+![image](https://github.com/user-attachments/assets/9437212e-0e03-4376-b644-7b79c0a55c2e)
+
+
+
+To create a main.yml in vprofile-action (main branch) .github/workflows/main.yml
+
+```
+name: vprofile actions
+on: workflow_dispatch
+env:
+  AWS_REGION: us-east-2
+  ECR_REPOSITORY: vprofileapp
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Maven test
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
+      - name: Set Java 11
+        uses: actions/setup-java@v3
+        with:
+         distribution: 'temurin' # See 'Supported distributions' for available options
+         java-version: '11'
+
+      # Setup sonar-scanner
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+
+
+      # Run sonar-scanner
+      - name: SonarQube Scan
+        run: sonar-scanner
+           -Dsonar.host.url=${{ secrets.SONAR_URL }}
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+           -Dsonar.sources=src/
+           -Dsonar.junit.reportsPath=target/surefire-reports/ 
+           -Dsonar.jacoco.reportsPath=target/jacoco.exec 
+           -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/    
+```
+
+To start this build as manually - Gitub Actions > Run > workflow
+
+
+My workflow has been completed
+
+
+![image](https://github.com/user-attachments/assets/6480c1b9-34bc-4f49-8998-fee057bf044d)
+
+
+
+### To update the code for Docker build and push to ECR
+
+
+To update the main.yml code and start the workflow
+
+
+```
+name: vprofile actions
+on: workflow_dispatch
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: vprofileapp
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Maven test
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
+      - name: Set Java 11
+        uses: actions/setup-java@v3
+        with:
+         distribution: 'temurin' # See 'Supported distributions' for available options
+         java-version: '11'
+
+      # Setup sonar-scanner
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+
+
+      # Run sonar-scanner
+      - name: SonarQube Scan
+        run: sonar-scanner
+           -Dsonar.host.url=${{ secrets.SONAR_URL }}
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+           -Dsonar.sources=src/
+           -Dsonar.junit.reportsPath=target/surefire-reports/ 
+           -Dsonar.jacoco.reportsPath=target/jacoco.exec 
+           -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/  
+
+      
+  BUILD_AND_PUBLISH:   
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+         access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         registry: ${{ secrets.REGISTRY }}
+         repo: ${{ env.ECR_REPOSITORY }}
+         region: ${{ env.AWS_REGION }}
+         tags: latest,${{ github.run_number }}
+         daemon_off: false
+         dockerfile: ./Dockerfile
+         context: ./
+```
+
+To run the workflow
+
+
+The build and push docker images has been done
+
+
+
+![image](https://github.com/user-attachments/assets/4910e152-6527-4251-adbf-893515fd2813)
+
+
+If you check with ECR repository
+
+
+![image](https://github.com/user-attachments/assets/5d1ede54-0eea-4576-995a-8bf656f3c6e6)
+
+
+
+
+My job has been succeeded
+
+
+### To add the Kubernetes deployment job
+
+
+Github repo > vprofile-action > main > .github/workflows > main.yml
+
+```
+name: vprofile actions
+on: workflow_dispatch
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: vprofileapp
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Maven test
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
+      - name: Set Java 11
+        uses: actions/setup-java@v3
+        with:
+         distribution: 'temurin' # See 'Supported distributions' for available options
+         java-version: '11'
+
+      # Setup sonar-scanner
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+
+
+      # Run sonar-scanner
+      - name: SonarQube Scan
+        run: sonar-scanner
+           -Dsonar.host.url=${{ secrets.SONAR_URL }}
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+           -Dsonar.sources=src/
+           -Dsonar.junit.reportsPath=target/surefire-reports/ 
+           -Dsonar.jacoco.reportsPath=target/jacoco.exec 
+           -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/  
+
+      
+  BUILD_AND_PUBLISH:   
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+         access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         registry: ${{ secrets.REGISTRY }}
+         repo: ${{ env.ECR_REPOSITORY }}
+         region: ${{ env.AWS_REGION }}
+         tags: latest,${{ github.run_number }}
+         daemon_off: false
+         dockerfile: ./Dockerfile
+         context: ./
+
+  DeployToEKS:
+    needs: BUILD_AND_PUBLISH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Kube config file
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+
+      - name: Print config file
+        run: cat ~/.kube/config
+
+      - name: Login to ECR
+        run: kubectl create secret docker-registry regcred --docker-server=${{ secrets.REGISTRY }} --docker-username=AWS  --docker-password=$(aws ecr get-login-password) 
+
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.8
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: ${{ env.EKS_CLUSTER }}
+          #config-files: .github/values/dev.yaml
+          chart-path: helm/vprofilecharts
+          namespace: default
+          values: appimage=${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }},apptag=${{ github.run_number }}
+          name: vprofile-stack
+```
+
+We are using Helm charts to deploy the k8 manifest yaml
+
+The charts are available in repo - vprofile-action/helm/vprofilecharts
+
+The domain should be updated in helm/vprofilecharts/templates/vproingress.yaml
+
+
+To start the workflow
+
+
+![image](https://github.com/user-attachments/assets/7934f109-00a9-4f8c-b862-a9f2ab677ca2)
+
+
+
+Once done, then map the ALB URL with domain name - then you can view the site
+
+
+![image](https://github.com/user-attachments/assets/d092ad08-133b-4f30-b570-d8a60bae6429)
+
+
+
+### To Clean up
+
+Remove the ALB and TG
+
+Remove the EKS node group
+
+Remove the EKS
+
+Remove the ECR
+
+Remove the IAM user
 
 
 
