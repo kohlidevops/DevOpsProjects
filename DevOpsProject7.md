@@ -329,6 +329,32 @@ Do some changes in terraform.tf code and check - workflow will trigger and it wi
 
 
 
+#### How to lock the main branch in iac-vprofile (But ignore this step as of now)
+
+
+Github repo > iac-vprofile > main branch > settings > branches > Add classic branch protection rule > Branch name pattern > main > Choose > Require a pull request before merging  and Require approvals > create
+
+
+#### How to merge the code from stage to main
+
+Go to - /c/Users/lenovoS340/D:Devops-Projectdevops4sure/main-iac and make ensure you are in main branch
+
+```
+git pull
+ls
+git checkout stage
+git checkout main
+git merge stage
+git status
+git push origin main
+```
+
+To check on Github repo > iac-vprofile > Actions
+
+
+
+
+
 
 
 
