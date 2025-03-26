@@ -349,7 +349,47 @@ git status
 git push origin main
 ```
 
-To check on Github repo > iac-vprofile > Actions
+To check on Github repo > iac-vprofile > Actions > Workflow triggered and this is main branch, so terraform apply will start and resources are deploying now.
+
+
+My workflow has been completed
+
+
+![image](https://github.com/user-attachments/assets/c8e367bc-0b0f-4ee8-92f2-54b4ef4143c9)
+
+
+EKS cluster has been created with node groups
+
+
+![image](https://github.com/user-attachments/assets/1dc66ea3-9733-4552-ba9a-99cee33778d2)
+
+
+Node group instances are available with their own autoscaling
+
+
+![image](https://github.com/user-attachments/assets/6df67718-b7c6-4729-acce-a789c5583e89)
+
+
+Ingress controller has been created means Loadbalancer was launched
+
+
+![image](https://github.com/user-attachments/assets/6018b334-00a1-4fa1-820e-711f7a6d1385)
+
+
+
+## Workflow for application code repository
+
+
+### SonarCloud setup
+
+To login sonarcloud with Github login
+
+
+![image](https://github.com/user-attachments/assets/b2c1a086-7cf2-4f73-b10c-00f1327c3944)
+
+
+
+
 
 
 
